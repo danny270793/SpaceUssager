@@ -34,6 +34,8 @@ class FileScanner: ObservableObject {
         totalSize = 0
         
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            
             var scannedFiles: [FileItem] = []
             var total: Int64 = 0
             
@@ -46,7 +48,8 @@ class FileScanner: ObservableObject {
                 options: [.skipsHiddenFiles]
             ) else {
                 DispatchQueue.main.async {
-                    self?.isScanning = false
+                    self.isScanning = false
+                    // Keep the selectedPath even if scan fails
                 }
                 return
             }
@@ -59,7 +62,7 @@ class FileScanner: ObservableObject {
                     
                     // For files, get size immediately and update UI
                     if !isDirectory {
-                        let itemSize = self?.getFileSize(url: itemURL) ?? 0
+                        let itemSize = self.getFileSize(url: itemURL)
                         
                         let fileItem = FileItem(
                             name: fileName,
@@ -72,7 +75,7 @@ class FileScanner: ObservableObject {
                         total += itemSize
                         
                         // Update UI with current progress
-                        DispatchQueue.main.async {
+                        DispatchQueue.main.async { [weak self] in
                             self?.files = scannedFiles.sorted { $0.size > $1.size }
                             self?.totalSize = total
                         }
@@ -88,12 +91,12 @@ class FileScanner: ObservableObject {
                         scannedFiles.append(fileItem)
                         
                         // Update UI to show the folder
-                        DispatchQueue.main.async {
+                        DispatchQueue.main.async { [weak self] in
                             self?.files = scannedFiles.sorted { $0.size > $1.size }
                         }
                         
                         // Calculate directory size
-                        let itemSize = self?.calculateDirectorySize(url: itemURL) ?? 0
+                        let itemSize = self.calculateDirectorySize(url: itemURL)
                         
                         // Update the item with the calculated size
                         if let index = scannedFiles.firstIndex(where: { $0.path == itemURL.path }) {
@@ -108,7 +111,7 @@ class FileScanner: ObservableObject {
                         total += itemSize
                         
                         // Update UI with new size
-                        DispatchQueue.main.async {
+                        DispatchQueue.main.async { [weak self] in
                             self?.files = scannedFiles.sorted { $0.size > $1.size }
                             self?.totalSize = total
                         }
@@ -119,7 +122,7 @@ class FileScanner: ObservableObject {
             }
             
             // Final update
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
                 self?.files = scannedFiles.sorted { $0.size > $1.size }
                 self?.totalSize = total
                 self?.isScanning = false
@@ -185,7 +188,7 @@ struct ContentView: View {
         guard !scanner.selectedPath.isEmpty else { return false }
         let currentURL = URL(fileURLWithPath: scanner.selectedPath)
         let parentURL = currentURL.deletingLastPathComponent()
-        return parentURL.path != currentURL.path
+        return parentURL.path != currentURL.path && !parentURL.path.isEmpty
     }
     
     var fileCount: Int {
@@ -197,9 +200,13 @@ struct ContentView: View {
     }
     
     func goToParentDirectory() {
+        guard !scanner.selectedPath.isEmpty else { return }
+        
         let currentURL = URL(fileURLWithPath: scanner.selectedPath)
         let parentURL = currentURL.deletingLastPathComponent()
-        if parentURL.path != currentURL.path {
+        
+        // Only navigate if the parent is different and not empty
+        if parentURL.path != currentURL.path && !parentURL.path.isEmpty {
             scanner.scanDirectory(at: parentURL)
         }
     }
@@ -374,10 +381,14 @@ struct ContentView: View {
             case .success(let urls):
                 if let url = urls.first {
                     // Start accessing the security-scoped resource
-                    if url.startAccessingSecurityScopedResource() {
+                    let hasAccess = url.startAccessingSecurityScopedResource()
+                    if hasAccess {
                         scanner.scanDirectory(at: url)
                         // Note: In a production app, you should stop accessing when done
                         // url.stopAccessingSecurityScopedResource()
+                    } else {
+                        // Try scanning anyway for non-sandboxed paths
+                        scanner.scanDirectory(at: url)
                     }
                 }
             case .failure(let error):
