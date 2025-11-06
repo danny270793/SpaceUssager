@@ -1,0 +1,61 @@
+/* App Title */
+"app.title" = "Space Ussager";
+
+/* Buttons */
+"button.selectFolder" = "Seleccionar Carpeta";
+"button.parentFolder" = "Carpeta Superior";
+
+/* Empty State */
+"empty.noFolder" = "Ninguna carpeta seleccionada";
+"empty.instruction" = "Haz clic en 'Seleccionar Carpeta' para analizar el uso del disco";
+
+/* Scanning */
+"scanning.text" = "Escaneando...";
+"scanning.path" = "Escaneando: %@";
+
+/* Bottom Bar */
+"bottom.totalSize" = "Tamaño Total:";
+"bottom.stats" = "(%d archivos, %d carpetas)";
+
+/* Navigation */
+"nav.parent" = "..";
+
+/* Logs */
+"log.scan.starting" = "Iniciando escaneo de: %@";
+"log.scan.deallocated" = "Self fue desasignado, abortando escaneo";
+"log.scan.failed" = "Error al leer contenido del directorio: %@";
+"log.scan.reason" = "Razón: %@";
+"log.scan.found" = "Se encontraron %d elementos para procesar";
+"log.scan.file" = "Archivo: %@ - %@";
+"log.scan.folderFound" = "Carpeta encontrada: %@ - calculando tamaño...";
+"log.scan.folderComplete" = "Carpeta: %@ - %@ (tomó %.2fs)";
+"log.scan.error" = "Error al leer elemento: %@";
+"log.scan.completed" = "¡Escaneo completado!";
+"log.scan.total" = "Total: %@";
+"log.scan.stats" = "Archivos: %d, Carpetas: %d";
+
+"log.nav.parentRequested" = "Solicitud de ir a carpeta superior";
+"log.nav.noPath" = "No hay ruta actual, no se puede ir a la carpeta superior";
+"log.nav.current" = "Actual: %@";
+"log.nav.parent" = "Superior: %@";
+"log.nav.navigating" = "Navegando a carpeta superior";
+"log.nav.cannotNavigate" = "No se puede navegar a la carpeta superior (en raíz o inválida)";
+
+"log.ui.selectFolderClicked" = "Botón Seleccionar Carpeta presionado";
+"log.ui.selectFolderBlocked" = "Seleccionar Carpeta bloqueado - escaneo en progreso";
+"log.ui.parentClicked" = "Elemento '..' presionado";
+"log.ui.parentBlocked" = "'..' bloqueado - escaneo en progreso";
+"log.ui.folderClicked" = "Carpeta presionada: %@";
+"log.ui.folderBlocked" = "Clic en carpeta bloqueado - escaneo en progreso";
+"log.ui.fileClicked" = "Archivo presionado (sin acción): %@";
+"log.ui.scrolling" = "Desplazando al inicio para: %@";
+
+"log.picker.callback" = "Callback del selector de archivos activado";
+"log.picker.selected" = "Carpeta seleccionada: %@";
+"log.picker.access" = "Acceso de seguridad: %@";
+"log.picker.access.granted" = "concedido";
+"log.picker.access.notNeeded" = "no necesario";
+"log.picker.noAccess" = "Intentando escaneo sin ámbito de seguridad";
+"log.picker.noUrl" = "No se devolvió URL de carpeta";
+"log.picker.error" = "Error al seleccionar carpeta: %@";
+
