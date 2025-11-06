@@ -28,7 +28,7 @@ class FileScanner: ObservableObject {
     @Published var selectedPath: String = ""
     
     func scanDirectory(at url: URL) {
-        print("📂 [SCAN] Starting scan of: \(url.path)")
+        print("📂 [SCAN] \(String(localized: "log.scan.starting", defaultValue: "Starting scan of: %@")) \(url.path)")
         
         isScanning = true
         selectedPath = url.path
@@ -37,7 +37,7 @@ class FileScanner: ObservableObject {
         
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else {
-                print("⚠️ [SCAN] Self was deallocated, aborting scan")
+                print("⚠️ [SCAN] \(String(localized: "log.scan.deallocated", defaultValue: "Self was deallocated, aborting scan"))")
                 return
             }
             
@@ -55,8 +55,8 @@ class FileScanner: ObservableObject {
                     options: [.skipsHiddenFiles]
                 )
             } catch {
-                print("❌ [SCAN] Failed to read directory contents: \(url.path)")
-                print("   Reason: \(error.localizedDescription)")
+                print("❌ [SCAN] \(String(localized: "log.scan.failed", defaultValue: "Failed to read directory contents: %@")) \(url.path)")
+                print("   \(String(localized: "log.scan.reason", defaultValue: "Reason: %@")) \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     self.isScanning = false
                     // Keep the selectedPath even if scan fails
@@ -64,7 +64,7 @@ class FileScanner: ObservableObject {
                 return
             }
             
-            print("📋 [SCAN] Found \(contents.count) items to process")
+            print("📋 [SCAN] \(String(format: String(localized: "log.scan.found", defaultValue: "Found %d items to process"), contents.count))")
             
             for itemURL in contents {
                 do {
@@ -75,7 +75,7 @@ class FileScanner: ObservableObject {
                     // For files, get size immediately and update UI
                     if !isDirectory {
                         let itemSize = self.getFileSize(url: itemURL)
-                        print("📄 [SCAN] File: \(fileName) - \(self.formatBytes(itemSize))")
+                        print("📄 [SCAN] \(String(format: String(localized: "log.scan.file", defaultValue: "File: %@ - %@"), fileName, self.formatBytes(itemSize)))")
                         
                         let fileItem = FileItem(
                             name: fileName,
@@ -94,7 +94,7 @@ class FileScanner: ObservableObject {
                         }
                     } else {
                         // For directories, add with size 0 first, then calculate
-                        print("📁 [SCAN] Folder found: \(fileName) - calculating size...")
+                        print("📁 [SCAN] \(String(format: String(localized: "log.scan.folderFound", defaultValue: "Folder found: %@ - calculating size..."), fileName))")
                         
                         let fileItem = FileItem(
                             name: fileName,
@@ -114,7 +114,7 @@ class FileScanner: ObservableObject {
                         let startTime = Date()
                         let itemSize = self.calculateDirectorySize(url: itemURL)
                         let duration = Date().timeIntervalSince(startTime)
-                        print("📁 [SCAN] Folder: \(fileName) - \(self.formatBytes(itemSize)) (took \(String(format: "%.2f", duration))s)")
+                        print("📁 [SCAN] \(String(format: String(localized: "log.scan.folderComplete", defaultValue: "Folder: %@ - %@ (took %.2fs)"), fileName, self.formatBytes(itemSize), duration))")
                         
                         // Update the item with the calculated size
                         if let index = scannedFiles.firstIndex(where: { $0.path == itemURL.path }) {
@@ -135,7 +135,7 @@ class FileScanner: ObservableObject {
                         }
                     }
                 } catch {
-                    print("❌ [SCAN] Error reading item: \(error)")
+                    print("❌ [SCAN] \(String(format: String(localized: "log.scan.error", defaultValue: "Error reading item: %@"), error.localizedDescription))")
                 }
             }
             
@@ -148,9 +148,9 @@ class FileScanner: ObservableObject {
                 
                 let fileCount = scannedFiles.filter { !$0.isDirectory }.count
                 let folderCount = scannedFiles.filter { $0.isDirectory }.count
-                print("✅ [SCAN] Scan completed!")
-                print("   Total: \(self.formatBytes(total))")
-                print("   Files: \(fileCount), Folders: \(folderCount)")
+                print("✅ [SCAN] \(String(localized: "log.scan.completed", defaultValue: "Scan completed!"))")
+                print("   \(String(format: String(localized: "log.scan.total", defaultValue: "Total: %@"), self.formatBytes(total)))")
+                print("   \(String(format: String(localized: "log.scan.stats", defaultValue: "Files: %d, Folders: %d"), fileCount, folderCount))")
             }
         }
     }
@@ -225,25 +225,25 @@ struct ContentView: View {
     }
     
     func goToParentDirectory() {
-        print("⬆️ [NAV] Go to parent requested")
+        print("⬆️ [NAV] \(String(localized: "log.nav.parentRequested", defaultValue: "Go to parent requested"))")
         
         guard !scanner.selectedPath.isEmpty else {
-            print("⚠️ [NAV] No current path, cannot go to parent")
+            print("⚠️ [NAV] \(String(localized: "log.nav.noPath", defaultValue: "No current path, cannot go to parent"))")
             return
         }
         
         let currentURL = URL(fileURLWithPath: scanner.selectedPath)
         let parentURL = currentURL.deletingLastPathComponent()
         
-        print("   Current: \(currentURL.path)")
-        print("   Parent: \(parentURL.path)")
+        print("   \(String(format: String(localized: "log.nav.current", defaultValue: "Current: %@"), currentURL.path))")
+        print("   \(String(format: String(localized: "log.nav.parent", defaultValue: "Parent: %@"), parentURL.path))")
         
         // Only navigate if the parent is different and not empty
         if parentURL.path != currentURL.path && !parentURL.path.isEmpty {
-            print("✅ [NAV] Navigating to parent")
+            print("✅ [NAV] \(String(localized: "log.nav.navigating", defaultValue: "Navigating to parent"))")
             scanner.scanDirectory(at: parentURL)
         } else {
-            print("⚠️ [NAV] Cannot navigate to parent (at root or invalid)")
+            print("⚠️ [NAV] \(String(localized: "log.nav.cannotNavigate", defaultValue: "Cannot navigate to parent (at root or invalid)"))")
         }
     }
     
@@ -251,7 +251,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Space Ussager")
+                Text(String(localized: "app.title", defaultValue: "Space Ussager"))
                     .font(.title)
                     .bold()
                 
@@ -259,13 +259,13 @@ struct ContentView: View {
                 
                 Button(action: {
                     if !scanner.isScanning {
-                        print("📁 [UI] Select Folder button clicked")
+                        print("📁 [UI] \(String(localized: "log.ui.selectFolderClicked", defaultValue: "Select Folder button clicked"))")
                         showingFolderPicker = true
                     } else {
-                        print("⚠️ [UI] Select Folder blocked - scan in progress")
+                        print("⚠️ [UI] \(String(localized: "log.ui.selectFolderBlocked", defaultValue: "Select Folder blocked - scan in progress"))")
                     }
                 }) {
-                    Label("Select Folder", systemImage: "folder")
+                    Label(String(localized: "button.selectFolder", defaultValue: "Select Folder"), systemImage: "folder")
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(scanner.isScanning)
@@ -274,7 +274,7 @@ struct ContentView: View {
             
             if !scanner.selectedPath.isEmpty {
                 HStack {
-                    Text("Scanning: \(scanner.selectedPath)")
+                    Text(String(format: String(localized: "scanning.path", defaultValue: "Scanning: %@"), scanner.selectedPath))
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
@@ -292,9 +292,9 @@ struct ContentView: View {
                     Image(systemName: "folder.badge.questionmark")
                         .font(.system(size: 60))
                         .foregroundColor(.secondary)
-                    Text("No folder selected")
+                    Text(String(localized: "empty.noFolder", defaultValue: "No folder selected"))
                         .font(.title2)
-                    Text("Click 'Select Folder' to analyze disk usage")
+                    Text(String(localized: "empty.instruction", defaultValue: "Click 'Select Folder' to analyze disk usage"))
                         .foregroundColor(.secondary)
                 }
                 Spacer()
@@ -311,7 +311,7 @@ struct ContentView: View {
                             HStack {
                                 ProgressView()
                                     .scaleEffect(0.8)
-                                Text("Scanning...")
+                                Text(String(localized: "scanning.text", defaultValue: "Scanning..."))
                                     .foregroundColor(.secondary)
                                     .font(.caption)
                                 Spacer()
@@ -326,13 +326,13 @@ struct ContentView: View {
                                 .foregroundColor(scanner.isScanning ? .gray : .blue)
                                 .frame(width: 20)
                             
-                            Text("..")
+                            Text(String(localized: "nav.parent", defaultValue: ".."))
                                 .lineLimit(1)
                                 .opacity(scanner.isScanning ? 0.5 : 1.0)
                             
                             Spacer()
                             
-                            Text("Parent Folder")
+                            Text(String(localized: "button.parentFolder", defaultValue: "Parent Folder"))
                                 .foregroundColor(.secondary)
                                 .font(.caption)
                         }
@@ -340,10 +340,10 @@ struct ContentView: View {
                         .contentShape(Rectangle())
                         .onTapGesture {
                             if !scanner.isScanning {
-                                print("⬆️ [UI] '..' item clicked")
+                                print("⬆️ [UI] \(String(localized: "log.ui.parentClicked", defaultValue: "'..' item clicked"))")
                                 goToParentDirectory()
                             } else {
-                                print("⚠️ [UI] '..' blocked - scan in progress")
+                                print("⚠️ [UI] \(String(localized: "log.ui.parentBlocked", defaultValue: "'..' blocked - scan in progress"))")
                             }
                         }
                     }
@@ -377,14 +377,14 @@ struct ContentView: View {
                         .onTapGesture {
                             if file.isDirectory {
                                 if !scanner.isScanning {
-                                    print("📂 [UI] Folder clicked: \(file.name)")
+                                    print("📂 [UI] \(String(format: String(localized: "log.ui.folderClicked", defaultValue: "Folder clicked: %@"), file.name))")
                                     let url = URL(fileURLWithPath: file.path)
                                     scanner.scanDirectory(at: url)
                                 } else {
-                                    print("⚠️ [UI] Folder click blocked - scan in progress")
+                                    print("⚠️ [UI] \(String(localized: "log.ui.folderBlocked", defaultValue: "Folder click blocked - scan in progress"))")
                                 }
                             } else {
-                                print("📄 [UI] File clicked (no action): \(file.name)")
+                                print("📄 [UI] \(String(format: String(localized: "log.ui.fileClicked", defaultValue: "File clicked (no action): %@"), file.name))")
                             }
                         }
                     }
@@ -393,7 +393,7 @@ struct ContentView: View {
                     .onChange(of: scanner.selectedPath) { newPath in
                         // Scroll to top when a new scan starts
                         if scanner.isScanning {
-                            print("📜 [UI] Scrolling to top for: \(newPath)")
+                            print("📜 [UI] \(String(format: String(localized: "log.ui.scrolling", defaultValue: "Scrolling to top for: %@"), newPath))")
                             withAnimation {
                                 proxy.scrollTo("top", anchor: .top)
                             }
@@ -406,7 +406,7 @@ struct ContentView: View {
             
             // Bottom Bar
             HStack {
-                Label("Total Size:", systemImage: "info.circle")
+                Label(String(localized: "bottom.totalSize", defaultValue: "Total Size:"), systemImage: "info.circle")
                     .font(.headline)
                 
                 Spacer()
@@ -415,7 +415,7 @@ struct ContentView: View {
                     .font(.system(.title3, design: .monospaced))
                     .bold()
                 
-                Text("(\(fileCount) files, \(folderCount) folders)")
+                Text(String(format: String(localized: "bottom.stats", defaultValue: "(%d files, %d folders)"), fileCount, folderCount))
                     .foregroundColor(.secondary)
             }
             .padding()
@@ -427,16 +427,17 @@ struct ContentView: View {
             allowedContentTypes: [.folder],
             allowsMultipleSelection: false
         ) { result in
-            print("📂 [PICKER] File picker callback triggered")
+            print("📂 [PICKER] \(String(localized: "log.picker.callback", defaultValue: "File picker callback triggered"))")
             
             switch result {
             case .success(let urls):
                 if let url = urls.first {
-                    print("✅ [PICKER] Folder selected: \(url.path)")
+                    print("✅ [PICKER] \(String(format: String(localized: "log.picker.selected", defaultValue: "Folder selected: %@"), url.path))")
                     
                     // Start accessing the security-scoped resource
                     let hasAccess = url.startAccessingSecurityScopedResource()
-                    print("🔐 [PICKER] Security-scoped access: \(hasAccess ? "granted" : "not needed")")
+                    let accessStatus = hasAccess ? String(localized: "log.picker.access.granted", defaultValue: "granted") : String(localized: "log.picker.access.notNeeded", defaultValue: "not needed")
+                    print("🔐 [PICKER] \(String(format: String(localized: "log.picker.access", defaultValue: "Security-scoped access: %@"), accessStatus))")
                     
                     if hasAccess {
                         scanner.scanDirectory(at: url)
@@ -444,14 +445,14 @@ struct ContentView: View {
                         // url.stopAccessingSecurityScopedResource()
                     } else {
                         // Try scanning anyway for non-sandboxed paths
-                        print("⚠️ [PICKER] Attempting scan without security scope")
+                        print("⚠️ [PICKER] \(String(localized: "log.picker.noAccess", defaultValue: "Attempting scan without security scope"))")
                         scanner.scanDirectory(at: url)
                     }
                 } else {
-                    print("⚠️ [PICKER] No folder URL returned")
+                    print("⚠️ [PICKER] \(String(localized: "log.picker.noUrl", defaultValue: "No folder URL returned"))")
                 }
             case .failure(let error):
-                print("❌ [PICKER] Error selecting folder: \(error)")
+                print("❌ [PICKER] \(String(format: String(localized: "log.picker.error", defaultValue: "Error selecting folder: %@"), error.localizedDescription))")
             }
         }
     }
