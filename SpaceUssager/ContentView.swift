@@ -253,19 +253,25 @@ struct ContentView: View {
                 }
                 Spacer()
             } else {
-                List {
-                    // Loading indicator at the top while scanning
-                    if scanner.isScanning {
-                        HStack {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                            Text("Scanning...")
-                                .foregroundColor(.secondary)
-                                .font(.caption)
-                            Spacer()
+                ScrollViewReader { proxy in
+                    List {
+                        // Invisible anchor for scrolling to top
+                        Color.clear
+                            .frame(height: 0)
+                            .id("top")
+                        
+                        // Loading indicator at the top while scanning
+                        if scanner.isScanning {
+                            HStack {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                                Text("Scanning...")
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
+                                Spacer()
+                            }
+                            .padding(.vertical, 4)
                         }
-                        .padding(.vertical, 4)
-                    }
                     
                     // Add ".." item to go to parent directory
                     if canGoBack {
@@ -326,8 +332,17 @@ struct ContentView: View {
                             }
                         }
                     }
+                    }
+                    .listStyle(.plain)
+                    .onChange(of: scanner.selectedPath) { _ in
+                        // Scroll to top when a new scan starts
+                        if scanner.isScanning {
+                            withAnimation {
+                                proxy.scrollTo("top", anchor: .top)
+                            }
+                        }
+                    }
                 }
-                .listStyle(.plain)
             }
             
             Divider()
