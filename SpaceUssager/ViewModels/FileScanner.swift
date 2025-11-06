@@ -14,8 +14,10 @@ class FileScanner: ObservableObject {
     @Published var isScanning = false
     @Published var selectedPath: String = ""
     
+    private let logger = AppLogger.shared
+    
     func scanDirectory(at url: URL) {
-        print("📂 [SCAN] \(String(localized: "log.scan.starting", defaultValue: "Starting scan of: %@")) \(url.path)")
+        logger.scan("\(String(localized: "log.scan.starting", defaultValue: "Starting scan of: %@")) \(url.path)")
         
         isScanning = true
         selectedPath = url.path
@@ -24,7 +26,7 @@ class FileScanner: ObservableObject {
         
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else {
-                print("⚠️ [SCAN] \(String(localized: "log.scan.deallocated", defaultValue: "Self was deallocated, aborting scan"))")
+                AppLogger.shared.warning("\(String(localized: "log.scan.deallocated", defaultValue: "Self was deallocated, aborting scan"))", category: .scan)
                 return
             }
             
@@ -42,8 +44,8 @@ class FileScanner: ObservableObject {
                     options: [.skipsHiddenFiles]
                 )
             } catch {
-                print("❌ [SCAN] \(String(localized: "log.scan.failed", defaultValue: "Failed to read directory contents: %@")) \(url.path)")
-                print("   \(String(localized: "log.scan.reason", defaultValue: "Reason: %@")) \(error.localizedDescription)")
+                self.logger.error("\(String(localized: "log.scan.failed", defaultValue: "Failed to read directory contents: %@")) \(url.path)", category: .scan)
+                self.logger.error("\(String(localized: "log.scan.reason", defaultValue: "Reason: %@")) \(error.localizedDescription)", category: .scan)
                 DispatchQueue.main.async {
                     self.isScanning = false
                     // Keep the selectedPath even if scan fails
@@ -51,7 +53,7 @@ class FileScanner: ObservableObject {
                 return
             }
             
-            print("📋 [SCAN] \(String(format: String(localized: "log.scan.found", defaultValue: "Found %d items to process"), contents.count))")
+            self.logger.scan(String(format: String(localized: "log.scan.found", defaultValue: "Found %d items to process"), contents.count))
             
             for itemURL in contents {
                 do {
@@ -62,7 +64,7 @@ class FileScanner: ObservableObject {
                     // For files, get size immediately and update UI
                     if !isDirectory {
                         let itemSize = self.getFileSize(url: itemURL)
-                        print("📄 [SCAN] \(String(format: String(localized: "log.scan.file", defaultValue: "File: %@ - %@"), fileName, self.formatBytes(itemSize)))")
+                        self.logger.scan(String(format: String(localized: "log.scan.file", defaultValue: "File: %@ - %@"), fileName, self.formatBytes(itemSize)))
                         
                         let fileItem = FileItem(
                             name: fileName,
@@ -81,7 +83,7 @@ class FileScanner: ObservableObject {
                         }
                     } else {
                         // For directories, add with size 0 first, then calculate
-                        print("📁 [SCAN] \(String(format: String(localized: "log.scan.folderFound", defaultValue: "Folder found: %@ - calculating size..."), fileName))")
+                        self.logger.scan(String(format: String(localized: "log.scan.folderFound", defaultValue: "Folder found: %@ - calculating size..."), fileName))
                         
                         let fileItem = FileItem(
                             name: fileName,
@@ -101,7 +103,7 @@ class FileScanner: ObservableObject {
                         let startTime = Date()
                         let itemSize = self.calculateDirectorySize(url: itemURL)
                         let duration = Date().timeIntervalSince(startTime)
-                        print("📁 [SCAN] \(String(format: String(localized: "log.scan.folderComplete", defaultValue: "Folder: %@ - %@ (took %.2fs)"), fileName, self.formatBytes(itemSize), duration))")
+                        self.logger.scan(String(format: String(localized: "log.scan.folderComplete", defaultValue: "Folder: %@ - %@ (took %.2fs)"), fileName, self.formatBytes(itemSize), duration))
                         
                         // Update the item with the calculated size
                         if let index = scannedFiles.firstIndex(where: { $0.path == itemURL.path }) {
@@ -122,7 +124,7 @@ class FileScanner: ObservableObject {
                         }
                     }
                 } catch {
-                    print("❌ [SCAN] \(String(format: String(localized: "log.scan.error", defaultValue: "Error reading item: %@"), error.localizedDescription))")
+                    self.logger.error(String(format: String(localized: "log.scan.error", defaultValue: "Error reading item: %@"), error.localizedDescription), category: .scan)
                 }
             }
             
@@ -135,9 +137,9 @@ class FileScanner: ObservableObject {
                 
                 let fileCount = scannedFiles.filter { !$0.isDirectory }.count
                 let folderCount = scannedFiles.filter { $0.isDirectory }.count
-                print("✅ [SCAN] \(String(localized: "log.scan.completed", defaultValue: "Scan completed!"))")
-                print("   \(String(format: String(localized: "log.scan.total", defaultValue: "Total: %@"), self.formatBytes(total)))")
-                print("   \(String(format: String(localized: "log.scan.stats", defaultValue: "Files: %d, Folders: %d"), fileCount, folderCount))")
+                self.logger.success(String(localized: "log.scan.completed", defaultValue: "Scan completed!"), category: .scan)
+                self.logger.info(String(format: String(localized: "log.scan.total", defaultValue: "Total: %@"), self.formatBytes(total)), category: .scan)
+                self.logger.info(String(format: String(localized: "log.scan.stats", defaultValue: "Files: %d, Folders: %d"), fileCount, folderCount), category: .scan)
             }
         }
     }
