@@ -27,7 +27,20 @@ class FileScanner: ObservableObject {
     @Published var isScanning = false
     @Published var selectedPath: String = ""
     
+    private var shouldCancelScan = false
+    
+    func cancelCurrentScan() {
+        shouldCancelScan = true
+    }
+    
     func scanDirectory(at url: URL) {
+        // Cancel any ongoing scan
+        cancelCurrentScan()
+        
+        // Wait a brief moment for the old scan to recognize the cancel
+        Thread.sleep(forTimeInterval: 0.05)
+        
+        shouldCancelScan = false
         isScanning = true
         selectedPath = url.path
         files = []
@@ -52,6 +65,14 @@ class FileScanner: ObservableObject {
             }
             
             for itemURL in contents {
+                // Check if scan was cancelled
+                if self?.shouldCancelScan == true {
+                    DispatchQueue.main.async {
+                        self?.isScanning = false
+                    }
+                    return
+                }
+                
                 do {
                     let resourceValues = try itemURL.resourceValues(forKeys: [.isDirectoryKey, .nameKey])
                     let isDirectory = resourceValues.isDirectory ?? false
@@ -92,8 +113,24 @@ class FileScanner: ObservableObject {
                             self?.files = scannedFiles.sorted { $0.size > $1.size }
                         }
                         
+                        // Check if scan was cancelled before calculating directory size
+                        if self?.shouldCancelScan == true {
+                            DispatchQueue.main.async {
+                                self?.isScanning = false
+                            }
+                            return
+                        }
+                        
                         // Calculate directory size
                         let itemSize = self?.calculateDirectorySize(url: itemURL) ?? 0
+                        
+                        // Check again after potentially long calculation
+                        if self?.shouldCancelScan == true {
+                            DispatchQueue.main.async {
+                                self?.isScanning = false
+                            }
+                            return
+                        }
                         
                         // Update the item with the calculated size
                         if let index = scannedFiles.firstIndex(where: { $0.path == itemURL.path }) {
@@ -149,6 +186,11 @@ class FileScanner: ObservableObject {
         }
         
         for case let fileURL as URL in enumerator {
+            // Check if scan was cancelled
+            if shouldCancelScan {
+                return totalSize
+            }
+            
             do {
                 let resourceValues = try fileURL.resourceValues(forKeys: [.isDirectoryKey, .fileSizeKey])
                 let isDirectory = resourceValues.isDirectory ?? false
