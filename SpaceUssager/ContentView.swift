@@ -188,6 +188,14 @@ struct ContentView: View {
         return parentURL.path != currentURL.path
     }
     
+    var fileCount: Int {
+        scanner.files.filter { !$0.isDirectory }.count
+    }
+    
+    var folderCount: Int {
+        scanner.files.filter { $0.isDirectory }.count
+    }
+    
     func goToParentDirectory() {
         let currentURL = URL(fileURLWithPath: scanner.selectedPath)
         let parentURL = currentURL.deletingLastPathComponent()
@@ -327,7 +335,7 @@ struct ContentView: View {
                     .font(.system(.title3, design: .monospaced))
                     .bold()
                 
-                Text("(\(scanner.files.count) items)")
+                Text("(\(fileCount) files, \(folderCount) folders)")
                     .foregroundColor(.secondary)
             }
             .padding()
