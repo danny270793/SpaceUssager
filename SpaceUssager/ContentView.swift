@@ -8,12 +8,17 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct FileItem: Identifiable {
-    let id = UUID()
+struct FileItem: Identifiable, Equatable {
     let name: String
     let size: Int64
     let path: String
     let isDirectory: Bool
+    
+    var id: String { path }
+    
+    static func == (lhs: FileItem, rhs: FileItem) -> Bool {
+        lhs.path == rhs.path && lhs.size == rhs.size
+    }
 }
 
 class FileScanner: ObservableObject {
@@ -52,28 +57,70 @@ class FileScanner: ObservableObject {
                     let isDirectory = resourceValues.isDirectory ?? false
                     let fileName = resourceValues.name ?? itemURL.lastPathComponent
                     
-                    // Calculate size: for files use direct size, for directories calculate recursively
-                    let itemSize = isDirectory ? self?.calculateDirectorySize(url: itemURL) ?? 0 : self?.getFileSize(url: itemURL) ?? 0
-                    
-                    let fileItem = FileItem(
-                        name: fileName,
-                        size: itemSize,
-                        path: itemURL.path,
-                        isDirectory: isDirectory
-                    )
-                    
-                    scannedFiles.append(fileItem)
-                    total += itemSize
+                    // For files, get size immediately and update UI
+                    if !isDirectory {
+                        let itemSize = self?.getFileSize(url: itemURL) ?? 0
+                        
+                        let fileItem = FileItem(
+                            name: fileName,
+                            size: itemSize,
+                            path: itemURL.path,
+                            isDirectory: isDirectory
+                        )
+                        
+                        scannedFiles.append(fileItem)
+                        total += itemSize
+                        
+                        // Update UI with current progress
+                        DispatchQueue.main.async {
+                            self?.files = scannedFiles.sorted { $0.size > $1.size }
+                            self?.totalSize = total
+                        }
+                    } else {
+                        // For directories, add with size 0 first, then calculate
+                        let fileItem = FileItem(
+                            name: fileName,
+                            size: 0,
+                            path: itemURL.path,
+                            isDirectory: isDirectory
+                        )
+                        
+                        scannedFiles.append(fileItem)
+                        
+                        // Update UI to show the folder
+                        DispatchQueue.main.async {
+                            self?.files = scannedFiles.sorted { $0.size > $1.size }
+                        }
+                        
+                        // Calculate directory size
+                        let itemSize = self?.calculateDirectorySize(url: itemURL) ?? 0
+                        
+                        // Update the item with the calculated size
+                        if let index = scannedFiles.firstIndex(where: { $0.path == itemURL.path }) {
+                            scannedFiles[index] = FileItem(
+                                name: fileName,
+                                size: itemSize,
+                                path: itemURL.path,
+                                isDirectory: isDirectory
+                            )
+                        }
+                        
+                        total += itemSize
+                        
+                        // Update UI with new size
+                        DispatchQueue.main.async {
+                            self?.files = scannedFiles.sorted { $0.size > $1.size }
+                            self?.totalSize = total
+                        }
+                    }
                 } catch {
                     print("Error reading item: \(error)")
                 }
             }
             
-            // Sort by size descending
-            scannedFiles.sort { $0.size > $1.size }
-            
+            // Final update
             DispatchQueue.main.async {
-                self?.files = scannedFiles
+                self?.files = scannedFiles.sorted { $0.size > $1.size }
                 self?.totalSize = total
                 self?.isScanning = false
             }
@@ -182,16 +229,7 @@ struct ContentView: View {
             Divider()
             
             // File List
-            if scanner.isScanning {
-                Spacer()
-                VStack {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                    Text("Scanning files...")
-                        .padding(.top)
-                }
-                Spacer()
-            } else if scanner.files.isEmpty {
+            if scanner.files.isEmpty && !scanner.isScanning {
                 Spacer()
                 VStack(spacing: 16) {
                     Image(systemName: "folder.badge.questionmark")
@@ -205,6 +243,19 @@ struct ContentView: View {
                 Spacer()
             } else {
                 List {
+                    // Loading indicator at the top while scanning
+                    if scanner.isScanning {
+                        HStack {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                            Text("Scanning...")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                            Spacer()
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    
                     // Add ".." item to go to parent directory
                     if canGoBack {
                         HStack {
