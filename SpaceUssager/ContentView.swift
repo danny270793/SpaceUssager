@@ -144,6 +144,20 @@ struct ContentView: View {
                 
                 Spacer()
                 
+                if !scanner.selectedPath.isEmpty {
+                    Button(action: {
+                        let currentURL = URL(fileURLWithPath: scanner.selectedPath)
+                        let parentURL = currentURL.deletingLastPathComponent()
+                        // Check if we can go up (not at root)
+                        if parentURL.path != currentURL.path {
+                            scanner.scanDirectory(at: parentURL)
+                        }
+                    }) {
+                        Label("Back", systemImage: "arrow.left")
+                    }
+                    .buttonStyle(.bordered)
+                }
+                
                 Button(action: {
                     showingFolderPicker = true
                 }) {
@@ -203,8 +217,21 @@ struct ContentView: View {
                         Text(scanner.formatBytes(file.size))
                             .foregroundColor(.secondary)
                             .font(.system(.body, design: .monospaced))
+                        
+                        if file.isDirectory {
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
                     }
                     .padding(.vertical, 2)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if file.isDirectory {
+                            let url = URL(fileURLWithPath: file.path)
+                            scanner.scanDirectory(at: url)
+                        }
+                    }
                 }
                 .listStyle(.plain)
             }
