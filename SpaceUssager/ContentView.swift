@@ -28,13 +28,18 @@ class FileScanner: ObservableObject {
     @Published var selectedPath: String = ""
     
     func scanDirectory(at url: URL) {
+        print("📂 [SCAN] Starting scan of: \(url.path)")
+        
         isScanning = true
         selectedPath = url.path
         files = []
         totalSize = 0
         
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
+            guard let self = self else {
+                print("⚠️ [SCAN] Self was deallocated, aborting scan")
+                return
+            }
             
             var scannedFiles: [FileItem] = []
             var total: Int64 = 0
@@ -47,12 +52,15 @@ class FileScanner: ObservableObject {
                 includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey, .nameKey],
                 options: [.skipsHiddenFiles]
             ) else {
+                print("❌ [SCAN] Failed to read directory contents: \(url.path)")
                 DispatchQueue.main.async {
                     self.isScanning = false
                     // Keep the selectedPath even if scan fails
                 }
                 return
             }
+            
+            print("📋 [SCAN] Found \(contents.count) items to process")
             
             for itemURL in contents {
                 do {
@@ -63,6 +71,7 @@ class FileScanner: ObservableObject {
                     // For files, get size immediately and update UI
                     if !isDirectory {
                         let itemSize = self.getFileSize(url: itemURL)
+                        print("📄 [SCAN] File: \(fileName) - \(self.formatBytes(itemSize))")
                         
                         let fileItem = FileItem(
                             name: fileName,
@@ -81,6 +90,8 @@ class FileScanner: ObservableObject {
                         }
                     } else {
                         // For directories, add with size 0 first, then calculate
+                        print("📁 [SCAN] Folder found: \(fileName) - calculating size...")
+                        
                         let fileItem = FileItem(
                             name: fileName,
                             size: 0,
@@ -96,7 +107,10 @@ class FileScanner: ObservableObject {
                         }
                         
                         // Calculate directory size
+                        let startTime = Date()
                         let itemSize = self.calculateDirectorySize(url: itemURL)
+                        let duration = Date().timeIntervalSince(startTime)
+                        print("📁 [SCAN] Folder: \(fileName) - \(self.formatBytes(itemSize)) (took \(String(format: "%.2f", duration))s)")
                         
                         // Update the item with the calculated size
                         if let index = scannedFiles.firstIndex(where: { $0.path == itemURL.path }) {
@@ -117,15 +131,22 @@ class FileScanner: ObservableObject {
                         }
                     }
                 } catch {
-                    print("Error reading item: \(error)")
+                    print("❌ [SCAN] Error reading item: \(error)")
                 }
             }
             
             // Final update
             DispatchQueue.main.async { [weak self] in
-                self?.files = scannedFiles.sorted { $0.size > $1.size }
-                self?.totalSize = total
-                self?.isScanning = false
+                guard let self = self else { return }
+                self.files = scannedFiles.sorted { $0.size > $1.size }
+                self.totalSize = total
+                self.isScanning = false
+                
+                let fileCount = scannedFiles.filter { !$0.isDirectory }.count
+                let folderCount = scannedFiles.filter { $0.isDirectory }.count
+                print("✅ [SCAN] Scan completed!")
+                print("   Total: \(self.formatBytes(total))")
+                print("   Files: \(fileCount), Folders: \(folderCount)")
             }
         }
     }
@@ -200,14 +221,25 @@ struct ContentView: View {
     }
     
     func goToParentDirectory() {
-        guard !scanner.selectedPath.isEmpty else { return }
+        print("⬆️ [NAV] Go to parent requested")
+        
+        guard !scanner.selectedPath.isEmpty else {
+            print("⚠️ [NAV] No current path, cannot go to parent")
+            return
+        }
         
         let currentURL = URL(fileURLWithPath: scanner.selectedPath)
         let parentURL = currentURL.deletingLastPathComponent()
         
+        print("   Current: \(currentURL.path)")
+        print("   Parent: \(parentURL.path)")
+        
         // Only navigate if the parent is different and not empty
         if parentURL.path != currentURL.path && !parentURL.path.isEmpty {
+            print("✅ [NAV] Navigating to parent")
             scanner.scanDirectory(at: parentURL)
+        } else {
+            print("⚠️ [NAV] Cannot navigate to parent (at root or invalid)")
         }
     }
     
@@ -223,7 +255,10 @@ struct ContentView: View {
                 
                 Button(action: {
                     if !scanner.isScanning {
+                        print("📁 [UI] Select Folder button clicked")
                         showingFolderPicker = true
+                    } else {
+                        print("⚠️ [UI] Select Folder blocked - scan in progress")
                     }
                 }) {
                     Label("Select Folder", systemImage: "folder")
@@ -301,7 +336,10 @@ struct ContentView: View {
                         .contentShape(Rectangle())
                         .onTapGesture {
                             if !scanner.isScanning {
+                                print("⬆️ [UI] '..' item clicked")
                                 goToParentDirectory()
+                            } else {
+                                print("⚠️ [UI] '..' blocked - scan in progress")
                             }
                         }
                     }
@@ -333,17 +371,25 @@ struct ContentView: View {
                         .opacity(file.isDirectory && scanner.isScanning ? 0.5 : 1.0)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            if file.isDirectory && !scanner.isScanning {
-                                let url = URL(fileURLWithPath: file.path)
-                                scanner.scanDirectory(at: url)
+                            if file.isDirectory {
+                                if !scanner.isScanning {
+                                    print("📂 [UI] Folder clicked: \(file.name)")
+                                    let url = URL(fileURLWithPath: file.path)
+                                    scanner.scanDirectory(at: url)
+                                } else {
+                                    print("⚠️ [UI] Folder click blocked - scan in progress")
+                                }
+                            } else {
+                                print("📄 [UI] File clicked (no action): \(file.name)")
                             }
                         }
                     }
                     }
                     .listStyle(.plain)
-                    .onChange(of: scanner.selectedPath) { _ in
+                    .onChange(of: scanner.selectedPath) { newPath in
                         // Scroll to top when a new scan starts
                         if scanner.isScanning {
+                            print("📜 [UI] Scrolling to top for: \(newPath)")
                             withAnimation {
                                 proxy.scrollTo("top", anchor: .top)
                             }
@@ -377,22 +423,31 @@ struct ContentView: View {
             allowedContentTypes: [.folder],
             allowsMultipleSelection: false
         ) { result in
+            print("📂 [PICKER] File picker callback triggered")
+            
             switch result {
             case .success(let urls):
                 if let url = urls.first {
+                    print("✅ [PICKER] Folder selected: \(url.path)")
+                    
                     // Start accessing the security-scoped resource
                     let hasAccess = url.startAccessingSecurityScopedResource()
+                    print("🔐 [PICKER] Security-scoped access: \(hasAccess ? "granted" : "not needed")")
+                    
                     if hasAccess {
                         scanner.scanDirectory(at: url)
                         // Note: In a production app, you should stop accessing when done
                         // url.stopAccessingSecurityScopedResource()
                     } else {
                         // Try scanning anyway for non-sandboxed paths
+                        print("⚠️ [PICKER] Attempting scan without security scope")
                         scanner.scanDirectory(at: url)
                     }
+                } else {
+                    print("⚠️ [PICKER] No folder URL returned")
                 }
             case .failure(let error):
-                print("Error selecting folder: \(error)")
+                print("❌ [PICKER] Error selecting folder: \(error)")
             }
         }
     }
