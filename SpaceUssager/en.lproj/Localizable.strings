@@ -1,0 +1,61 @@
+/* App Title */
+"app.title" = "Space Ussager";
+
+/* Buttons */
+"button.selectFolder" = "Select Folder";
+"button.parentFolder" = "Parent Folder";
+
+/* Empty State */
+"empty.noFolder" = "No folder selected";
+"empty.instruction" = "Click 'Select Folder' to analyze disk usage";
+
+/* Scanning */
+"scanning.text" = "Scanning...";
+"scanning.path" = "Scanning: %@";
+
+/* Bottom Bar */
+"bottom.totalSize" = "Total Size:";
+"bottom.stats" = "(%d files, %d folders)";
+
+/* Navigation */
+"nav.parent" = "..";
+
+/* Logs */
+"log.scan.starting" = "Starting scan of: %@";
+"log.scan.deallocated" = "Self was deallocated, aborting scan";
+"log.scan.failed" = "Failed to read directory contents: %@";
+"log.scan.reason" = "Reason: %@";
+"log.scan.found" = "Found %d items to process";
+"log.scan.file" = "File: %@ - %@";
+"log.scan.folderFound" = "Folder found: %@ - calculating size...";
+"log.scan.folderComplete" = "Folder: %@ - %@ (took %.2fs)";
+"log.scan.error" = "Error reading item: %@";
+"log.scan.completed" = "Scan completed!";
+"log.scan.total" = "Total: %@";
+"log.scan.stats" = "Files: %d, Folders: %d";
+
+"log.nav.parentRequested" = "Go to parent requested";
+"log.nav.noPath" = "No current path, cannot go to parent";
+"log.nav.current" = "Current: %@";
+"log.nav.parent" = "Parent: %@";
+"log.nav.navigating" = "Navigating to parent";
+"log.nav.cannotNavigate" = "Cannot navigate to parent (at root or invalid)";
+
+"log.ui.selectFolderClicked" = "Select Folder button clicked";
+"log.ui.selectFolderBlocked" = "Select Folder blocked - scan in progress";
+"log.ui.parentClicked" = "'..' item clicked";
+"log.ui.parentBlocked" = "'..' blocked - scan in progress";
+"log.ui.folderClicked" = "Folder clicked: %@";
+"log.ui.folderBlocked" = "Folder click blocked - scan in progress";
+"log.ui.fileClicked" = "File clicked (no action): %@";
+"log.ui.scrolling" = "Scrolling to top for: %@";
+
+"log.picker.callback" = "File picker callback triggered";
+"log.picker.selected" = "Folder selected: %@";
+"log.picker.access" = "Security-scoped access: %@";
+"log.picker.access.granted" = "granted";
+"log.picker.access.notNeeded" = "not needed";
+"log.picker.noAccess" = "Attempting scan without security scope";
+"log.picker.noUrl" = "No folder URL returned";
+"log.picker.error" = "Error selecting folder: %@";
+
