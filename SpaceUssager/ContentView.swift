@@ -34,7 +34,8 @@ class FileScanner: ObservableObject {
             
             let fileManager = FileManager.default
             
-            guard let enumerator = fileManager.enumerator(
+            // Get only first level of contents
+            guard let contents = try? fileManager.contentsOfDirectory(
                 at: url,
                 includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey, .nameKey],
                 options: [.skipsHiddenFiles]
@@ -45,26 +46,26 @@ class FileScanner: ObservableObject {
                 return
             }
             
-            for case let fileURL as URL in enumerator {
+            for itemURL in contents {
                 do {
-                    let resourceValues = try fileURL.resourceValues(forKeys: [.isDirectoryKey, .fileSizeKey, .nameKey])
+                    let resourceValues = try itemURL.resourceValues(forKeys: [.isDirectoryKey, .nameKey])
                     let isDirectory = resourceValues.isDirectory ?? false
-                    let fileSize = Int64(resourceValues.fileSize ?? 0)
-                    let fileName = resourceValues.name ?? fileURL.lastPathComponent
+                    let fileName = resourceValues.name ?? itemURL.lastPathComponent
+                    
+                    // Calculate size: for files use direct size, for directories calculate recursively
+                    let itemSize = isDirectory ? self?.calculateDirectorySize(url: itemURL) ?? 0 : self?.getFileSize(url: itemURL) ?? 0
                     
                     let fileItem = FileItem(
                         name: fileName,
-                        size: fileSize,
-                        path: fileURL.path,
+                        size: itemSize,
+                        path: itemURL.path,
                         isDirectory: isDirectory
                     )
                     
                     scannedFiles.append(fileItem)
-                    if !isDirectory {
-                        total += fileSize
-                    }
+                    total += itemSize
                 } catch {
-                    print("Error reading file: \(error)")
+                    print("Error reading item: \(error)")
                 }
             }
             
@@ -77,6 +78,46 @@ class FileScanner: ObservableObject {
                 self?.isScanning = false
             }
         }
+    }
+    
+    private func getFileSize(url: URL) -> Int64 {
+        do {
+            let resourceValues = try url.resourceValues(forKeys: [.fileSizeKey])
+            return Int64(resourceValues.fileSize ?? 0)
+        } catch {
+            return 0
+        }
+    }
+    
+    private func calculateDirectorySize(url: URL) -> Int64 {
+        var totalSize: Int64 = 0
+        let fileManager = FileManager.default
+        
+        guard let enumerator = fileManager.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return 0
+        }
+        
+        for case let fileURL as URL in enumerator {
+            do {
+                let resourceValues = try fileURL.resourceValues(forKeys: [.isDirectoryKey, .fileSizeKey])
+                let isDirectory = resourceValues.isDirectory ?? false
+                
+                // Only count files, not directories themselves
+                if !isDirectory {
+                    let fileSize = Int64(resourceValues.fileSize ?? 0)
+                    totalSize += fileSize
+                }
+            } catch {
+                // Skip files we can't read
+                continue
+            }
+        }
+        
+        return totalSize
     }
     
     func formatBytes(_ bytes: Int64) -> String {
