@@ -261,6 +261,133 @@ struct ContentView: View {
     }
 }
 
-#Preview {
+#Preview("Empty State") {
     ContentView()
+}
+
+#Preview("With Mock Data") {
+    ContentViewWithMockData()
+}
+
+// Mock preview with sample data
+private struct ContentViewWithMockData: View {
+    @StateObject private var scanner: FileScanner = {
+        let scanner = FileScanner()
+        // Simulate scanned data
+        scanner.selectedPath = "/Users/demo/Documents"
+        scanner.files = [
+            FileItem(name: "Projects", size: 15_680_000_000, path: "/Users/demo/Documents/Projects", isDirectory: true),
+            FileItem(name: "Videos", size: 8_450_000_000, path: "/Users/demo/Documents/Videos", isDirectory: true),
+            FileItem(name: "Photos", size: 5_230_000_000, path: "/Users/demo/Documents/Photos", isDirectory: true),
+            FileItem(name: "presentation.key", size: 2_450_000_000, path: "/Users/demo/Documents/presentation.key", isDirectory: false),
+            FileItem(name: "Music", size: 1_850_000_000, path: "/Users/demo/Documents/Music", isDirectory: true),
+            FileItem(name: "Archive.zip", size: 980_000_000, path: "/Users/demo/Documents/Archive.zip", isDirectory: false),
+            FileItem(name: "Downloads", size: 650_000_000, path: "/Users/demo/Documents/Downloads", isDirectory: true),
+            FileItem(name: "document.pdf", size: 45_000_000, path: "/Users/demo/Documents/document.pdf", isDirectory: false),
+            FileItem(name: "notes.txt", size: 15_000, path: "/Users/demo/Documents/notes.txt", isDirectory: false)
+        ]
+        scanner.totalSize = scanner.files.reduce(0) { $0 + $1.size }
+        scanner.isScanning = false
+        return scanner
+    }()
+    @State private var showingFolderPicker = false
+    
+    var canGoBack: Bool {
+        guard !scanner.selectedPath.isEmpty else { return false }
+        let currentURL = URL(fileURLWithPath: scanner.selectedPath)
+        let parentURL = currentURL.deletingLastPathComponent()
+        return parentURL.path != currentURL.path && !parentURL.path.isEmpty
+    }
+    
+    var fileCount: Int {
+        scanner.files.filter { !$0.isDirectory }.count
+    }
+    
+    var folderCount: Int {
+        scanner.files.filter { $0.isDirectory }.count
+    }
+    
+    func goToParentDirectory() {
+        // Mock implementation for preview
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text(String(localized: "app.title", defaultValue: "Space Ussager"))
+                    .font(.title)
+                    .bold()
+                
+                Spacer()
+                
+                Button(action: {}) {
+                    Label(String(localized: "button.selectFolder", defaultValue: "Select Folder"), systemImage: "folder")
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+            
+            if !scanner.selectedPath.isEmpty {
+                HStack {
+                    Text(String(format: String(localized: "scanning.path", defaultValue: "Scanning: %@"), scanner.selectedPath))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 8)
+            }
+            
+            Divider()
+            
+            // File List
+            List {
+                // Regular files and folders
+                ForEach(scanner.files) { file in
+                    HStack {
+                        Image(systemName: file.isDirectory ? "folder.fill" : "doc.fill")
+                            .foregroundColor(file.isDirectory ? .blue : .gray)
+                            .frame(width: 20)
+                        
+                        Text(file.name)
+                            .lineLimit(1)
+                        
+                        Spacer()
+                        
+                        Text(scanner.formatBytes(file.size))
+                            .foregroundColor(.secondary)
+                            .font(.system(.body, design: .monospaced))
+                        
+                        if file.isDirectory {
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+            .listStyle(.plain)
+            
+            Divider()
+            
+            // Bottom Bar
+            HStack {
+                Label(String(localized: "bottom.totalSize", defaultValue: "Total Size:"), systemImage: "info.circle")
+                    .font(.headline)
+                
+                Spacer()
+                
+                Text(scanner.formatBytes(scanner.totalSize))
+                    .font(.system(.title3, design: .monospaced))
+                    .bold()
+                
+                Text(String(format: String(localized: "bottom.stats", defaultValue: "(%d files, %d folders)"), fileCount, folderCount))
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+        }
+        .frame(minWidth: 600, minHeight: 400)
+    }
 }
