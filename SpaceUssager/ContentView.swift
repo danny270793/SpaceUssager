@@ -47,12 +47,16 @@ class FileScanner: ObservableObject {
             let fileManager = FileManager.default
             
             // Get only first level of contents
-            guard let contents = try? fileManager.contentsOfDirectory(
-                at: url,
-                includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey, .nameKey],
-                options: [.skipsHiddenFiles]
-            ) else {
+            let contents: [URL]
+            do {
+                contents = try fileManager.contentsOfDirectory(
+                    at: url,
+                    includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey, .nameKey],
+                    options: [.skipsHiddenFiles]
+                )
+            } catch {
                 print("❌ [SCAN] Failed to read directory contents: \(url.path)")
+                print("   Reason: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     self.isScanning = false
                     // Keep the selectedPath even if scan fails
