@@ -11,6 +11,7 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @StateObject private var scanner = FileScanner()
     @State private var showingFolderPicker = false
+    private let logger = AppLogger.shared
     
     var canGoBack: Bool {
         guard !scanner.selectedPath.isEmpty else { return false }
@@ -28,25 +29,25 @@ struct ContentView: View {
     }
     
     func goToParentDirectory() {
-        print("⬆️ [NAV] \(String(localized: "log.nav.parentRequested", defaultValue: "Go to parent requested"))")
+        logger.navigation(String(localized: "log.nav.parentRequested", defaultValue: "Go to parent requested"))
         
         guard !scanner.selectedPath.isEmpty else {
-            print("⚠️ [NAV] \(String(localized: "log.nav.noPath", defaultValue: "No current path, cannot go to parent"))")
+            logger.warning(String(localized: "log.nav.noPath", defaultValue: "No current path, cannot go to parent"), category: .navigation)
             return
         }
         
         let currentURL = URL(fileURLWithPath: scanner.selectedPath)
         let parentURL = currentURL.deletingLastPathComponent()
         
-        print("   \(String(format: String(localized: "log.nav.current", defaultValue: "Current: %@"), currentURL.path))")
-        print("   \(String(format: String(localized: "log.nav.parent", defaultValue: "Parent: %@"), parentURL.path))")
+        logger.info(String(format: String(localized: "log.nav.current", defaultValue: "Current: %@"), currentURL.path), category: .navigation)
+        logger.info(String(format: String(localized: "log.nav.parent", defaultValue: "Parent: %@"), parentURL.path), category: .navigation)
         
         // Only navigate if the parent is different and not empty
         if parentURL.path != currentURL.path && !parentURL.path.isEmpty {
-            print("✅ [NAV] \(String(localized: "log.nav.navigating", defaultValue: "Navigating to parent"))")
+            logger.success(String(localized: "log.nav.navigating", defaultValue: "Navigating to parent"), category: .navigation)
             scanner.scanDirectory(at: parentURL)
         } else {
-            print("⚠️ [NAV] \(String(localized: "log.nav.cannotNavigate", defaultValue: "Cannot navigate to parent (at root or invalid)"))")
+            logger.warning(String(localized: "log.nav.cannotNavigate", defaultValue: "Cannot navigate to parent (at root or invalid)"), category: .navigation)
         }
     }
     
@@ -62,10 +63,10 @@ struct ContentView: View {
                 
                 Button(action: {
                     if !scanner.isScanning {
-                        print("📁 [UI] \(String(localized: "log.ui.selectFolderClicked", defaultValue: "Select Folder button clicked"))")
+                        logger.ui(String(localized: "log.ui.selectFolderClicked", defaultValue: "Select Folder button clicked"))
                         showingFolderPicker = true
                     } else {
-                        print("⚠️ [UI] \(String(localized: "log.ui.selectFolderBlocked", defaultValue: "Select Folder blocked - scan in progress"))")
+                        logger.warning(String(localized: "log.ui.selectFolderBlocked", defaultValue: "Select Folder blocked - scan in progress"), category: .ui)
                     }
                 }) {
                     Label(String(localized: "button.selectFolder", defaultValue: "Select Folder"), systemImage: "folder")
@@ -143,10 +144,10 @@ struct ContentView: View {
                         .contentShape(Rectangle())
                         .onTapGesture {
                             if !scanner.isScanning {
-                                print("⬆️ [UI] \(String(localized: "log.ui.parentClicked", defaultValue: "'..' item clicked"))")
+                                logger.ui(String(localized: "log.ui.parentClicked", defaultValue: "'..' item clicked"))
                                 goToParentDirectory()
                             } else {
-                                print("⚠️ [UI] \(String(localized: "log.ui.parentBlocked", defaultValue: "'..' blocked - scan in progress"))")
+                                logger.warning(String(localized: "log.ui.parentBlocked", defaultValue: "'..' blocked - scan in progress"), category: .ui)
                             }
                         }
                     }
@@ -180,14 +181,14 @@ struct ContentView: View {
                         .onTapGesture {
                             if file.isDirectory {
                                 if !scanner.isScanning {
-                                    print("📂 [UI] \(String(format: String(localized: "log.ui.folderClicked", defaultValue: "Folder clicked: %@"), file.name))")
+                                    logger.ui(String(format: String(localized: "log.ui.folderClicked", defaultValue: "Folder clicked: %@"), file.name))
                                     let url = URL(fileURLWithPath: file.path)
                                     scanner.scanDirectory(at: url)
                                 } else {
-                                    print("⚠️ [UI] \(String(localized: "log.ui.folderBlocked", defaultValue: "Folder click blocked - scan in progress"))")
+                                    logger.warning(String(localized: "log.ui.folderBlocked", defaultValue: "Folder click blocked - scan in progress"), category: .ui)
                                 }
                             } else {
-                                print("📄 [UI] \(String(format: String(localized: "log.ui.fileClicked", defaultValue: "File clicked (no action): %@"), file.name))")
+                                logger.ui(String(format: String(localized: "log.ui.fileClicked", defaultValue: "File clicked (no action): %@"), file.name))
                             }
                         }
                     }
@@ -196,7 +197,7 @@ struct ContentView: View {
                     .onChange(of: scanner.selectedPath) { newPath in
                         // Scroll to top when a new scan starts
                         if scanner.isScanning {
-                            print("📜 [UI] \(String(format: String(localized: "log.ui.scrolling", defaultValue: "Scrolling to top for: %@"), newPath))")
+                            logger.ui(String(format: String(localized: "log.ui.scrolling", defaultValue: "Scrolling to top for: %@"), newPath))
                             withAnimation {
                                 proxy.scrollTo("top", anchor: .top)
                             }
@@ -230,17 +231,17 @@ struct ContentView: View {
             allowedContentTypes: [.folder],
             allowsMultipleSelection: false
         ) { result in
-            print("📂 [PICKER] \(String(localized: "log.picker.callback", defaultValue: "File picker callback triggered"))")
+            logger.picker(String(localized: "log.picker.callback", defaultValue: "File picker callback triggered"))
             
             switch result {
             case .success(let urls):
                 if let url = urls.first {
-                    print("✅ [PICKER] \(String(format: String(localized: "log.picker.selected", defaultValue: "Folder selected: %@"), url.path))")
+                    logger.success(String(format: String(localized: "log.picker.selected", defaultValue: "Folder selected: %@"), url.path), category: .picker)
                     
                     // Start accessing the security-scoped resource
                     let hasAccess = url.startAccessingSecurityScopedResource()
                     let accessStatus = hasAccess ? String(localized: "log.picker.access.granted", defaultValue: "granted") : String(localized: "log.picker.access.notNeeded", defaultValue: "not needed")
-                    print("🔐 [PICKER] \(String(format: String(localized: "log.picker.access", defaultValue: "Security-scoped access: %@"), accessStatus))")
+                    logger.info(String(format: String(localized: "log.picker.access", defaultValue: "Security-scoped access: %@"), accessStatus), category: .picker)
                     
                     if hasAccess {
                         scanner.scanDirectory(at: url)
@@ -248,14 +249,14 @@ struct ContentView: View {
                         // url.stopAccessingSecurityScopedResource()
                     } else {
                         // Try scanning anyway for non-sandboxed paths
-                        print("⚠️ [PICKER] \(String(localized: "log.picker.noAccess", defaultValue: "Attempting scan without security scope"))")
+                        logger.warning(String(localized: "log.picker.noAccess", defaultValue: "Attempting scan without security scope"), category: .picker)
                         scanner.scanDirectory(at: url)
                     }
                 } else {
-                    print("⚠️ [PICKER] \(String(localized: "log.picker.noUrl", defaultValue: "No folder URL returned"))")
+                    logger.warning(String(localized: "log.picker.noUrl", defaultValue: "No folder URL returned"), category: .picker)
                 }
             case .failure(let error):
-                print("❌ [PICKER] \(String(format: String(localized: "log.picker.error", defaultValue: "Error selecting folder: %@"), error.localizedDescription))")
+                logger.error(String(format: String(localized: "log.picker.error", defaultValue: "Error selecting folder: %@"), error.localizedDescription), category: .picker)
             }
         }
     }
