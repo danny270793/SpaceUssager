@@ -134,6 +134,21 @@ struct ContentView: View {
     @StateObject private var scanner = FileScanner()
     @State private var showingFolderPicker = false
     
+    var canGoBack: Bool {
+        guard !scanner.selectedPath.isEmpty else { return false }
+        let currentURL = URL(fileURLWithPath: scanner.selectedPath)
+        let parentURL = currentURL.deletingLastPathComponent()
+        return parentURL.path != currentURL.path
+    }
+    
+    func goToParentDirectory() {
+        let currentURL = URL(fileURLWithPath: scanner.selectedPath)
+        let parentURL = currentURL.deletingLastPathComponent()
+        if parentURL.path != currentURL.path {
+            scanner.scanDirectory(at: parentURL)
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -143,20 +158,6 @@ struct ContentView: View {
                     .bold()
                 
                 Spacer()
-                
-                if !scanner.selectedPath.isEmpty {
-                    Button(action: {
-                        let currentURL = URL(fileURLWithPath: scanner.selectedPath)
-                        let parentURL = currentURL.deletingLastPathComponent()
-                        // Check if we can go up (not at root)
-                        if parentURL.path != currentURL.path {
-                            scanner.scanDirectory(at: parentURL)
-                        }
-                    }) {
-                        Label("Back", systemImage: "arrow.left")
-                    }
-                    .buttonStyle(.bordered)
-                }
                 
                 Button(action: {
                     showingFolderPicker = true
@@ -203,33 +204,59 @@ struct ContentView: View {
                 }
                 Spacer()
             } else {
-                List(scanner.files) { file in
-                    HStack {
-                        Image(systemName: file.isDirectory ? "folder.fill" : "doc.fill")
-                            .foregroundColor(file.isDirectory ? .blue : .gray)
-                            .frame(width: 20)
-                        
-                        Text(file.name)
-                            .lineLimit(1)
-                        
-                        Spacer()
-                        
-                        Text(scanner.formatBytes(file.size))
-                            .foregroundColor(.secondary)
-                            .font(.system(.body, design: .monospaced))
-                        
-                        if file.isDirectory {
-                            Image(systemName: "chevron.right")
+                List {
+                    // Add ".." item to go to parent directory
+                    if canGoBack {
+                        HStack {
+                            Image(systemName: "arrow.up.backward")
+                                .foregroundColor(.blue)
+                                .frame(width: 20)
+                            
+                            Text("..")
+                                .lineLimit(1)
+                            
+                            Spacer()
+                            
+                            Text("Parent Folder")
                                 .foregroundColor(.secondary)
                                 .font(.caption)
                         }
+                        .padding(.vertical, 2)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            goToParentDirectory()
+                        }
                     }
-                    .padding(.vertical, 2)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        if file.isDirectory {
-                            let url = URL(fileURLWithPath: file.path)
-                            scanner.scanDirectory(at: url)
+                    
+                    // Regular files and folders
+                    ForEach(scanner.files) { file in
+                        HStack {
+                            Image(systemName: file.isDirectory ? "folder.fill" : "doc.fill")
+                                .foregroundColor(file.isDirectory ? .blue : .gray)
+                                .frame(width: 20)
+                            
+                            Text(file.name)
+                                .lineLimit(1)
+                            
+                            Spacer()
+                            
+                            Text(scanner.formatBytes(file.size))
+                                .foregroundColor(.secondary)
+                                .font(.system(.body, design: .monospaced))
+                            
+                            if file.isDirectory {
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            if file.isDirectory {
+                                let url = URL(fileURLWithPath: file.path)
+                                scanner.scanDirectory(at: url)
+                            }
                         }
                     }
                 }
