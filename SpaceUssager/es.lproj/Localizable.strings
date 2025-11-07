@@ -40,6 +40,16 @@
 /* Context Menu */
 "contextMenu.delete" = "Eliminar";
 
+/* Delete Confirmation */
+"delete.confirmation.title" = "Eliminar Elemento";
+"delete.confirmation.message" = "¿Estás seguro de que deseas eliminar permanentemente \"%@\"? Esta acción no se puede deshacer.";
+"delete.confirmation.button" = "Eliminar \"%@\"";
+"delete.confirmation.cancel" = "Cancelar";
+
+/* Delete Error */
+"delete.error.title" = "Error al Eliminar";
+"delete.error.ok" = "OK";
+
 /* Logs */
 "log.scan.starting" = "Iniciando escaneo de: %@";
 "log.scan.deallocated" = "Self fue desasignado, abortando escaneo";
