@@ -13,5 +13,10 @@ struct SpaceUssagerApp: App {
         WindowGroup {
             ContentView()
         }
+        .windowStyle(.automatic)
+        .windowToolbarStyle(.unified)
+        .commands {
+            CommandGroup(replacing: .newItem) { }
+        }
     }
 }

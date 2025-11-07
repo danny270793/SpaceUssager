@@ -52,56 +52,46 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text(String(localized: "app.title", defaultValue: "Space Ussager"))
-                    .font(.title)
-                    .bold()
-                
-                Spacer()
-                
-                Button(action: {
-                    if !scanner.isScanning {
-                        logger.ui(String(localized: "log.ui.selectFolderClicked", defaultValue: "Select Folder button clicked"))
-                        showingFolderPicker = true
-                    } else {
-                        logger.warning(String(localized: "log.ui.selectFolderBlocked", defaultValue: "Select Folder blocked - scan in progress"), category: .ui)
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Path breadcrumb
+                if !scanner.selectedPath.isEmpty {
+                    HStack(spacing: 4) {
+                        Image(systemName: "folder")
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                        
+                        Text(scanner.selectedPath)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        
+                        Spacer()
+                        
+                        if scanner.isScanning {
+                            HStack(spacing: 6) {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                                    .controlSize(.small)
+                                Text(String(localized: "scanning.text", defaultValue: "Scanning..."))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
                     }
-                }) {
-                    Label(String(localized: "button.selectFolder", defaultValue: "Select Folder"), systemImage: "folder")
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .background(Color(nsColor: .controlBackgroundColor))
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(scanner.isScanning)
-            }
-            .padding()
-            
-            if !scanner.selectedPath.isEmpty {
-                HStack {
-                    Text(String(format: String(localized: "scanning.path", defaultValue: "Scanning: %@"), scanner.selectedPath))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 8)
-            }
-            
-            Divider()
             
             // File List
             if scanner.files.isEmpty && !scanner.isScanning {
-                Spacer()
-                VStack(spacing: 16) {
-                    Image(systemName: "folder.badge.questionmark")
-                        .font(.system(size: 60))
-                        .foregroundColor(.secondary)
-                    Text(String(localized: "empty.noFolder", defaultValue: "No folder selected"))
-                        .font(.title2)
+                ContentUnavailableView {
+                    Label(String(localized: "empty.noFolder", defaultValue: "No folder selected"), systemImage: "folder.badge.questionmark")
+                } description: {
                     Text(String(localized: "empty.instruction", defaultValue: "Click 'Select Folder' to analyze disk usage"))
-                        .foregroundColor(.secondary)
                 }
-                Spacer()
             } else {
                 ScrollViewReader { proxy in
                     List {
@@ -109,30 +99,18 @@ struct ContentView: View {
                         Color.clear
                             .frame(height: 0)
                             .id("top")
-                        
-                        // Loading indicator at the top while scanning
-                        if scanner.isScanning {
-                            HStack {
-                                ProgressView()
-                                    .scaleEffect(0.8)
-                                Text(String(localized: "scanning.text", defaultValue: "Scanning..."))
-                                    .foregroundColor(.secondary)
-                                    .font(.caption)
-                                Spacer()
-                            }
-                            .padding(.vertical, 4)
-                        }
                     
                     // Add ".." item to go to parent directory
                     if canGoBack {
-                        HStack {
+                        HStack(spacing: 8) {
                             Image(systemName: "arrow.up.backward")
-                                .foregroundColor(scanner.isScanning ? .gray : .blue)
+                                .foregroundColor(scanner.isScanning ? .secondary : .accentColor)
+                                .font(.body)
                                 .frame(width: 20)
                             
                             Text(String(localized: "nav.parent", defaultValue: ".."))
-                                .lineLimit(1)
-                                .opacity(scanner.isScanning ? 0.5 : 1.0)
+                                .font(.system(.body, design: .default))
+                                .fontWeight(.medium)
                             
                             Spacer()
                             
@@ -140,8 +118,9 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                                 .font(.caption)
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, 4)
                         .contentShape(Rectangle())
+                        .disabled(scanner.isScanning)
                         .onTapGesture {
                             if !scanner.isScanning {
                                 logger.ui(String(localized: "log.ui.parentClicked", defaultValue: "'..' item clicked"))
@@ -154,30 +133,42 @@ struct ContentView: View {
                     
                     // Regular files and folders
                     ForEach(scanner.files) { file in
-                        HStack {
+                        HStack(spacing: 8) {
                             Image(systemName: file.isDirectory ? "folder.fill" : "doc.fill")
-                                .foregroundColor(file.isDirectory ? (scanner.isScanning ? .gray : .blue) : .gray)
+                                .foregroundColor(file.isDirectory ? (scanner.isScanning ? .secondary : .accentColor) : Color(nsColor: .secondaryLabelColor))
+                                .font(.body)
                                 .frame(width: 20)
                             
-                            Text(file.name)
-                                .lineLimit(1)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(file.name)
+                                    .font(.system(.body))
+                                    .lineLimit(1)
+                                
+                                if file.isDirectory {
+                                    Text("\(scanner.formatBytes(file.size))")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
                             
                             Spacer()
                             
-                            Text(scanner.formatBytes(file.size))
-                                .foregroundColor(.secondary)
-                                .font(.system(.body, design: .monospaced))
+                            if !file.isDirectory {
+                                Text(scanner.formatBytes(file.size))
+                                    .foregroundColor(.secondary)
+                                    .font(.system(.callout, design: .monospaced))
+                            }
                             
                             if file.isDirectory {
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.secondary)
-                                    .font(.caption)
-                                    .opacity(scanner.isScanning ? 0.5 : 1.0)
+                                    .font(.caption2)
+                                    .fontWeight(.semibold)
                             }
                         }
-                        .padding(.vertical, 2)
-                        .opacity(file.isDirectory && scanner.isScanning ? 0.5 : 1.0)
+                        .padding(.vertical, 4)
                         .contentShape(Rectangle())
+                        .disabled(file.isDirectory && scanner.isScanning)
                         .onTapGesture {
                             if file.isDirectory {
                                 if !scanner.isScanning {
@@ -206,26 +197,49 @@ struct ContentView: View {
                 }
             }
             
-            Divider()
-            
             // Bottom Bar
-            HStack {
-                Label(String(localized: "bottom.totalSize", defaultValue: "Total Size:"), systemImage: "info.circle")
-                    .font(.headline)
+            if !scanner.files.isEmpty || scanner.isScanning {
+                Divider()
                 
-                Spacer()
-                
-                Text(scanner.formatBytes(scanner.totalSize))
-                    .font(.system(.title3, design: .monospaced))
-                    .bold()
-                
-                Text(String(format: String(localized: "bottom.stats", defaultValue: "(%d files, %d folders)"), fileCount, folderCount))
-                    .foregroundColor(.secondary)
+                HStack(spacing: 12) {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(.secondary)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(scanner.formatBytes(scanner.totalSize))
+                            .font(.system(.body, design: .monospaced))
+                            .fontWeight(.medium)
+                        
+                        Text(String(format: String(localized: "bottom.stats", defaultValue: "(%d files, %d folders)"), fileCount, folderCount))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                }
+                .padding()
+                .background(Color(nsColor: .controlBackgroundColor))
             }
-            .padding()
-            //.background(Color(nsColor: .controlBackgroundColor))
         }
-        .frame(minWidth: 600, minHeight: 400)
+        .navigationTitle(String(localized: "app.title", defaultValue: "Space Ussager"))
+        .toolbar {
+            ToolbarItem(placement: .automatic) {
+                Button(action: {
+                    if !scanner.isScanning {
+                        logger.ui(String(localized: "log.ui.selectFolderClicked", defaultValue: "Select Folder button clicked"))
+                        showingFolderPicker = true
+                    } else {
+                        logger.warning(String(localized: "log.ui.selectFolderBlocked", defaultValue: "Select Folder blocked - scan in progress"), category: .ui)
+                    }
+                }) {
+                    Label(String(localized: "button.selectFolder", defaultValue: "Select Folder"), systemImage: "folder")
+                }
+                .disabled(scanner.isScanning)
+                .help(String(localized: "button.selectFolder", defaultValue: "Select Folder"))
+            }
+        }
+        }
+        .frame(minWidth: 700, idealWidth: 900, minHeight: 500, idealHeight: 700)
         .fileImporter(
             isPresented: $showingFolderPicker,
             allowedContentTypes: [.folder],
