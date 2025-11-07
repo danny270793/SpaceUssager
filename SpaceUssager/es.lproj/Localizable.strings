@@ -5,6 +5,19 @@
 "button.selectFolder" = "Seleccionar Carpeta";
 "button.parentFolder" = "Carpeta Superior";
 
+/* Welcome Screen */
+"welcome.title" = "Bienvenido a Space Ussager";
+"welcome.subtitle" = "Analiza y comprende el uso de espacio en tu disco";
+"welcome.feature1.title" = "Escanea Cualquier Carpeta";
+"welcome.feature1.description" = "Analiza rápidamente el contenido de cualquier carpeta en tu Mac";
+"welcome.feature2.title" = "Ver Tamaños de Archivos";
+"welcome.feature2.description" = "Visualiza archivos y carpetas ordenados por tamaño para identificar archivos grandes";
+"welcome.feature3.title" = "Buscar y Filtrar";
+"welcome.feature3.description" = "Encuentra archivos y carpetas específicos con búsqueda instantánea";
+"welcome.feature4.title" = "Navegación Fácil";
+"welcome.feature4.description" = "Navega por la estructura de carpetas con facilidad";
+"welcome.getStarted" = "Comenzar";
+
 /* Empty State */
 "empty.noFolder" = "Ninguna carpeta seleccionada";
 "empty.instruction" = "Haz clic en 'Seleccionar Carpeta' para analizar el uso del disco";

@@ -5,6 +5,19 @@
 "button.selectFolder" = "Select Folder";
 "button.parentFolder" = "Parent Folder";
 
+/* Welcome Screen */
+"welcome.title" = "Welcome to Space Ussager";
+"welcome.subtitle" = "Analyze and understand your disk space usage";
+"welcome.feature1.title" = "Scan Any Folder";
+"welcome.feature1.description" = "Quickly analyze the contents of any folder on your Mac";
+"welcome.feature2.title" = "See File Sizes";
+"welcome.feature2.description" = "View files and folders sorted by size to identify space hogs";
+"welcome.feature3.title" = "Search & Filter";
+"welcome.feature3.description" = "Find specific files and folders with instant search";
+"welcome.feature4.title" = "Easy Navigation";
+"welcome.feature4.description" = "Navigate through your folder structure with ease";
+"welcome.getStarted" = "Get Started";
+
 /* Empty State */
 "empty.noFolder" = "No folder selected";
 "empty.instruction" = "Click 'Select Folder' to analyze disk usage";
