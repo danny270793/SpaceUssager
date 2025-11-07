@@ -39,16 +39,16 @@
 
 /* Context Menu */
 "contextMenu.showInFinder" = "Mostrar en Finder";
-"contextMenu.delete" = "Eliminar";
+"contextMenu.delete" = "Mover a la Papelera";
 
 /* Delete Confirmation */
-"delete.confirmation.title" = "Eliminar Elemento";
-"delete.confirmation.message" = "¿Estás seguro de que deseas eliminar permanentemente \"%@\"? Esta acción no se puede deshacer.";
-"delete.confirmation.button" = "Eliminar \"%@\"";
+"delete.confirmation.title" = "Mover a la Papelera";
+"delete.confirmation.message" = "¿Estás seguro de que deseas mover \"%@\" a la Papelera?";
+"delete.confirmation.button" = "Mover \"%@\" a la Papelera";
 "delete.confirmation.cancel" = "Cancelar";
 
 /* Delete Error */
-"delete.error.title" = "Error al Eliminar";
+"delete.error.title" = "Error al Mover a la Papelera";
 "delete.error.ok" = "OK";
 
 /* Logs */
@@ -81,7 +81,7 @@
 "log.ui.fileClicked" = "Archivo presionado (sin acción): %@";
 "log.ui.scrolling" = "Desplazando al inicio para: %@";
 "log.ui.showInFinderClicked" = "Mostrar en Finder solicitado para: %@";
-"log.ui.deleteClicked" = "Eliminación solicitada para: %@";
+"log.ui.deleteClicked" = "Mover a la Papelera solicitado para: %@";
 
 "log.picker.callback" = "Callback del selector de archivos activado";
 "log.picker.selected" = "Carpeta seleccionada: %@";
@@ -92,9 +92,9 @@
 "log.picker.noUrl" = "No se devolvió URL de carpeta";
 "log.picker.error" = "Error al seleccionar carpeta: %@";
 
-"log.delete.attempting" = "Intentando eliminar: %@";
-"log.delete.success" = "Eliminado exitosamente: %@";
-"log.delete.failed" = "Error al eliminar: %@";
+"log.delete.attempting" = "Intentando mover a la papelera: %@";
+"log.delete.success" = "Movido a la papelera exitosamente: %@";
+"log.delete.failed" = "Error al mover a la papelera: %@";
 "log.delete.reason" = "Razón: %@";
 
 /* Help Menu */
