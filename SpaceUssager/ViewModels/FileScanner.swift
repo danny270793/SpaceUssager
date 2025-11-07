@@ -48,7 +48,10 @@ class FileScanner: ObservableObject {
                 self.logger.error("\(String(localized: "log.scan.reason", defaultValue: "Reason: %@")) \(error.localizedDescription)", category: .scan)
                 DispatchQueue.main.async {
                     self.isScanning = false
-                    // Keep the selectedPath even if scan fails
+                    // Clear the selected path on error to show empty/welcome state
+                    self.selectedPath = ""
+                    self.files = []
+                    self.totalSize = 0
                 }
                 return
             }
