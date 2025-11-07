@@ -37,6 +37,9 @@
 /* Navigation */
 "nav.parent" = "..";
 
+/* Context Menu */
+"contextMenu.delete" = "Delete";
+
 /* Logs */
 "log.scan.starting" = "Starting scan of: %@";
 "log.scan.deallocated" = "Self was deallocated, aborting scan";
@@ -66,6 +69,7 @@
 "log.ui.folderBlocked" = "Folder click blocked - scan in progress";
 "log.ui.fileClicked" = "File clicked (no action): %@";
 "log.ui.scrolling" = "Scrolling to top for: %@";
+"log.ui.deleteClicked" = "Delete requested for: %@";
 
 "log.picker.callback" = "File picker callback triggered";
 "log.picker.selected" = "Folder selected: %@";
@@ -75,6 +79,11 @@
 "log.picker.noAccess" = "Attempting scan without security scope";
 "log.picker.noUrl" = "No folder URL returned";
 "log.picker.error" = "Error selecting folder: %@";
+
+"log.delete.attempting" = "Attempting to delete: %@";
+"log.delete.success" = "Successfully deleted: %@";
+"log.delete.failed" = "Failed to delete: %@";
+"log.delete.reason" = "Reason: %@";
 
 /* Help Menu */
 "menu.help.spaceussager" = "SpaceUssager Help";
