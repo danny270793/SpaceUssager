@@ -12,6 +12,7 @@ struct ContentView: View {
     @StateObject private var scanner = FileScanner()
     @State private var showingFolderPicker = false
     @State private var searchText = ""
+    @AppStorage("hasSeenWelcome") private var hasSeenWelcome = false
     private let logger = AppLogger.shared
     
     var filteredFiles: [FileItem] {
@@ -99,11 +100,18 @@ struct ContentView: View {
                 }
             
             // File List or Welcome Screen
-            if scanner.selectedPath.isEmpty && !scanner.isScanning {
+            if scanner.selectedPath.isEmpty && !scanner.isScanning && !hasSeenWelcome {
                 WelcomeView(onSelectFolder: {
                     logger.ui(String(localized: "log.ui.selectFolderClicked", defaultValue: "Select Folder button clicked"))
+                    hasSeenWelcome = true
                     showingFolderPicker = true
                 })
+            } else if scanner.selectedPath.isEmpty && !scanner.isScanning {
+                ContentUnavailableView {
+                    Label(String(localized: "empty.noFolder", defaultValue: "No folder selected"), systemImage: "folder.badge.questionmark")
+                } description: {
+                    Text(String(localized: "empty.instruction", defaultValue: "Click 'Select Folder' to analyze disk usage"))
+                }
             } else {
                 ScrollViewReader { proxy in
                     List {
