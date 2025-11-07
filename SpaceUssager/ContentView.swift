@@ -244,7 +244,7 @@ struct ContentView: View {
         .navigationTitle(String(localized: "app.title", defaultValue: "Space Ussager"))
         .searchable(
             text: $searchText,
-            placement: .sidebar,
+            placement: .toolbar,
             prompt: Text(String(localized: "search.prompt", defaultValue: "Search files and folders"))
         )
         .toolbar {
