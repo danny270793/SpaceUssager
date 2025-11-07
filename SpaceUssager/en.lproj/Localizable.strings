@@ -40,6 +40,16 @@
 /* Context Menu */
 "contextMenu.delete" = "Delete";
 
+/* Delete Confirmation */
+"delete.confirmation.title" = "Delete Item";
+"delete.confirmation.message" = "Are you sure you want to permanently delete \"%@\"? This action cannot be undone.";
+"delete.confirmation.button" = "Delete \"%@\"";
+"delete.confirmation.cancel" = "Cancel";
+
+/* Delete Error */
+"delete.error.title" = "Delete Failed";
+"delete.error.ok" = "OK";
+
 /* Logs */
 "log.scan.starting" = "Starting scan of: %@";
 "log.scan.deallocated" = "Self was deallocated, aborting scan";
