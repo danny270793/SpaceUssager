@@ -65,6 +65,8 @@
 "log.scan.completed" = "¡Escaneo completado!";
 "log.scan.total" = "Total: %@";
 "log.scan.stats" = "Archivos: %d, Carpetas: %d";
+"log.scan.recursive" = "Iniciando escaneo recursivo de: %@";
+"log.scan.recursiveComplete" = "Escaneo recursivo completado: %d elementos encontrados";
 
 "log.nav.parentRequested" = "Solicitud de ir a carpeta superior";
 "log.nav.noPath" = "No hay ruta actual, no se puede ir a la carpeta superior";
@@ -165,4 +167,5 @@
 "report.filter.all" = "Todo";
 "report.filter.files" = "Solo Archivos";
 "report.filter.folders" = "Solo Carpetas";
+"report.recursive.title" = "Incluir todas las subcarpetas (recursivo)";
 
