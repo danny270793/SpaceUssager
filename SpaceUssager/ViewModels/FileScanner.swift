@@ -196,6 +196,62 @@ class FileScanner: ObservableObject {
         return formatter.string(fromByteCount: bytes)
     }
     
+    func scanDirectoryRecursively(at url: URL, completion: @escaping ([FileItem]) -> Void) {
+        logger.scan(String(format: String(localized: "log.scan.recursive", defaultValue: "Starting recursive scan of: %@"), url.path))
+        
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            
+            var allFiles: [FileItem] = []
+            let fileManager = FileManager.default
+            
+            guard let enumerator = fileManager.enumerator(
+                at: url,
+                includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey, .nameKey],
+                options: [.skipsHiddenFiles]
+            ) else {
+                DispatchQueue.main.async {
+                    completion([])
+                }
+                return
+            }
+            
+            for case let fileURL as URL in enumerator {
+                do {
+                    let resourceValues = try fileURL.resourceValues(forKeys: [.isDirectoryKey, .nameKey, .fileSizeKey])
+                    let isDirectory = resourceValues.isDirectory ?? false
+                    let fileName = resourceValues.name ?? fileURL.lastPathComponent
+                    
+                    let itemSize: Int64
+                    if isDirectory {
+                        itemSize = self.calculateDirectorySize(url: fileURL)
+                    } else {
+                        itemSize = Int64(resourceValues.fileSize ?? 0)
+                    }
+                    
+                    let fileItem = FileItem(
+                        name: fileName,
+                        size: itemSize,
+                        path: fileURL.path,
+                        isDirectory: isDirectory
+                    )
+                    
+                    allFiles.append(fileItem)
+                } catch {
+                    continue
+                }
+            }
+            
+            // Sort by size
+            let sortedFiles = allFiles.sorted { $0.size > $1.size }
+            
+            DispatchQueue.main.async {
+                self.logger.success(String(format: String(localized: "log.scan.recursiveComplete", defaultValue: "Recursive scan completed: %d items found"), sortedFiles.count), category: .scan)
+                completion(sortedFiles)
+            }
+        }
+    }
+    
     func deleteItem(at path: String) -> String? {
         logger.info(String(format: String(localized: "log.delete.attempting", defaultValue: "Attempting to delete: %@"), path), category: .general)
         
