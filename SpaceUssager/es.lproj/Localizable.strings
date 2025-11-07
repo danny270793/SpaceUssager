@@ -37,6 +37,9 @@
 /* Navigation */
 "nav.parent" = "..";
 
+/* Context Menu */
+"contextMenu.delete" = "Eliminar";
+
 /* Logs */
 "log.scan.starting" = "Iniciando escaneo de: %@";
 "log.scan.deallocated" = "Self fue desasignado, abortando escaneo";
@@ -66,6 +69,7 @@
 "log.ui.folderBlocked" = "Clic en carpeta bloqueado - escaneo en progreso";
 "log.ui.fileClicked" = "Archivo presionado (sin acción): %@";
 "log.ui.scrolling" = "Desplazando al inicio para: %@";
+"log.ui.deleteClicked" = "Eliminación solicitada para: %@";
 
 "log.picker.callback" = "Callback del selector de archivos activado";
 "log.picker.selected" = "Carpeta seleccionada: %@";
@@ -75,6 +79,11 @@
 "log.picker.noAccess" = "Intentando escaneo sin ámbito de seguridad";
 "log.picker.noUrl" = "No se devolvió URL de carpeta";
 "log.picker.error" = "Error al seleccionar carpeta: %@";
+
+"log.delete.attempting" = "Intentando eliminar: %@";
+"log.delete.success" = "Eliminado exitosamente: %@";
+"log.delete.failed" = "Error al eliminar: %@";
+"log.delete.reason" = "Razón: %@";
 
 /* Help Menu */
 "menu.help.spaceussager" = "Ayuda de SpaceUssager";
