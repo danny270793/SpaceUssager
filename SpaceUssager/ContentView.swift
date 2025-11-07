@@ -218,11 +218,11 @@ struct ContentView: View {
                             Divider()
                             
                             Button(role: .destructive) {
-                                logger.ui(String(format: String(localized: "log.ui.deleteClicked", defaultValue: "Delete requested for: %@"), file.name))
+                                logger.ui(String(format: String(localized: "log.ui.deleteClicked", defaultValue: "Move to Trash requested for: %@"), file.name))
                                 itemToDelete = file
                                 showingDeleteConfirmation = true
                             } label: {
-                                Label(String(localized: "contextMenu.delete", defaultValue: "Delete"), systemImage: "trash")
+                                Label(String(localized: "contextMenu.delete", defaultValue: "Move to Trash"), systemImage: "trash")
                             }
                         }
                     }
@@ -329,7 +329,7 @@ struct ContentView: View {
             }
         }
         .confirmationDialog(
-            String(localized: "delete.confirmation.title", defaultValue: "Delete Item"),
+            String(localized: "delete.confirmation.title", defaultValue: "Move to Trash"),
             isPresented: $showingDeleteConfirmation,
             presenting: itemToDelete
         ) { item in
@@ -339,14 +339,14 @@ struct ContentView: View {
                     showingDeleteError = true
                 }
             } label: {
-                Text(String(format: String(localized: "delete.confirmation.button", defaultValue: "Delete \"%@\""), item.name))
+                Text(String(format: String(localized: "delete.confirmation.button", defaultValue: "Move \"%@\" to Trash"), item.name))
             }
             Button(String(localized: "delete.confirmation.cancel", defaultValue: "Cancel"), role: .cancel) { }
         } message: { item in
-            Text(String(format: String(localized: "delete.confirmation.message", defaultValue: "Are you sure you want to permanently delete \"%@\"? This action cannot be undone."), item.name))
+            Text(String(format: String(localized: "delete.confirmation.message", defaultValue: "Are you sure you want to move \"%@\" to the Trash?"), item.name))
         }
         .alert(
-            String(localized: "delete.error.title", defaultValue: "Delete Failed"),
+            String(localized: "delete.error.title", defaultValue: "Failed to Move to Trash"),
             isPresented: $showingDeleteError
         ) {
             Button(String(localized: "delete.error.ok", defaultValue: "OK"), role: .cancel) { }
