@@ -8,6 +8,14 @@
 import SwiftUI
 import Charts
 
+enum ItemFilter: String, CaseIterable, Identifiable {
+    case all = "All"
+    case filesOnly = "Files Only"
+    case foldersOnly = "Folders Only"
+    
+    var id: String { self.rawValue }
+}
+
 struct ReportView: View {
     @Environment(\.dismiss) private var dismiss
     let files: [FileItem]
@@ -15,29 +23,46 @@ struct ReportView: View {
     let folderPath: String
     let scanner: FileScanner
     
+    @State private var selectedFilter: ItemFilter = .all
+    
+    var filteredFiles: [FileItem] {
+        switch selectedFilter {
+        case .all:
+            return files
+        case .filesOnly:
+            return files.filter { !$0.isDirectory }
+        case .foldersOnly:
+            return files.filter { $0.isDirectory }
+        }
+    }
+    
     var fileCount: Int {
-        files.filter { !$0.isDirectory }.count
+        filteredFiles.filter { !$0.isDirectory }.count
     }
     
     var folderCount: Int {
-        files.filter { $0.isDirectory }.count
+        filteredFiles.filter { $0.isDirectory }.count
+    }
+    
+    var filteredTotalSize: Int64 {
+        filteredFiles.reduce(0) { $0 + $1.size }
     }
     
     var largestItems: [FileItem] {
-        Array(files.prefix(10))
+        Array(filteredFiles.prefix(10))
     }
     
     var fileTypeBreakdown: [(String, Int64)] {
         var typeMap: [String: Int64] = [:]
         
-        for file in files where !file.isDirectory {
+        for file in filteredFiles where !file.isDirectory {
             let ext = (file.name as NSString).pathExtension.lowercased()
             let displayType = ext.isEmpty ? "No Extension" : ext.uppercased()
             typeMap[displayType, default: 0] += file.size
         }
         
         // Add folders as a type
-        let folderSize = files.filter { $0.isDirectory }.reduce(0) { $0 + $1.size }
+        let folderSize = filteredFiles.filter { $0.isDirectory }.reduce(0) { $0 + $1.size }
         if folderSize > 0 {
             typeMap["Folders"] = folderSize
         }
@@ -71,6 +96,15 @@ struct ReportView: View {
                     }
                     .padding(.horizontal)
                     
+                    // Filter Picker
+                    Picker(String(localized: "report.filter.title", defaultValue: "Show"), selection: $selectedFilter) {
+                        Text(String(localized: "report.filter.all", defaultValue: "All")).tag(ItemFilter.all)
+                        Text(String(localized: "report.filter.files", defaultValue: "Files Only")).tag(ItemFilter.filesOnly)
+                        Text(String(localized: "report.filter.folders", defaultValue: "Folders Only")).tag(ItemFilter.foldersOnly)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    
                     Divider()
                     
                     // Summary Statistics
@@ -82,7 +116,7 @@ struct ReportView: View {
                         HStack(spacing: 20) {
                             StatCard(
                                 title: String(localized: "report.totalSize", defaultValue: "Total Size"),
-                                value: scanner.formatBytes(totalSize),
+                                value: scanner.formatBytes(filteredTotalSize),
                                 icon: "internaldrive",
                                 color: .blue
                             )
@@ -136,7 +170,7 @@ struct ReportView: View {
                                             .font(.subheadline)
                                             .foregroundColor(.secondary)
                                             .monospacedDigit()
-                                        Text("(\(Int((Double(size) / Double(totalSize)) * 100))%)")
+                                        Text("(\(Int((Double(size) / Double(filteredTotalSize)) * 100))%)")
                                             .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
@@ -220,7 +254,7 @@ struct ReportView: View {
                             }
                             
                             if fileCount > 0 {
-                                let avgFileSize = totalSize / Int64(fileCount)
+                                let avgFileSize = filteredTotalSize / Int64(fileCount)
                                 InsightCard(
                                     icon: "chart.bar.fill",
                                     color: .blue,
@@ -230,7 +264,7 @@ struct ReportView: View {
                             }
                             
                             if !fileTypeBreakdown.isEmpty, let topType = fileTypeBreakdown.first {
-                                let percentage = Int((Double(topType.1) / Double(totalSize)) * 100)
+                                let percentage = Int((Double(topType.1) / Double(filteredTotalSize)) * 100)
                                 InsightCard(
                                     icon: "chart.pie.fill",
                                     color: .purple,
