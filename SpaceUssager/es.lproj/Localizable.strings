@@ -38,6 +38,7 @@
 "nav.parent" = "..";
 
 /* Context Menu */
+"contextMenu.showInFinder" = "Mostrar en Finder";
 "contextMenu.delete" = "Eliminar";
 
 /* Delete Confirmation */
@@ -79,6 +80,7 @@
 "log.ui.folderBlocked" = "Clic en carpeta bloqueado - escaneo en progreso";
 "log.ui.fileClicked" = "Archivo presionado (sin acción): %@";
 "log.ui.scrolling" = "Desplazando al inicio para: %@";
+"log.ui.showInFinderClicked" = "Mostrar en Finder solicitado para: %@";
 "log.ui.deleteClicked" = "Eliminación solicitada para: %@";
 
 "log.picker.callback" = "Callback del selector de archivos activado";
