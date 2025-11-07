@@ -65,6 +65,8 @@
 "log.scan.completed" = "Scan completed!";
 "log.scan.total" = "Total: %@";
 "log.scan.stats" = "Files: %d, Folders: %d";
+"log.scan.recursive" = "Starting recursive scan of: %@";
+"log.scan.recursiveComplete" = "Recursive scan completed: %d items found";
 
 "log.nav.parentRequested" = "Go to parent requested";
 "log.nav.noPath" = "No current path, cannot go to parent";
@@ -165,4 +167,5 @@
 "report.filter.all" = "All";
 "report.filter.files" = "Files Only";
 "report.filter.folders" = "Folders Only";
+"report.recursive.title" = "Include all subfolders (recursive)";
 
