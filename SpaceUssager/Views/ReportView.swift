@@ -24,15 +24,22 @@ struct ReportView: View {
     let scanner: FileScanner
     
     @State private var selectedFilter: ItemFilter = .all
+    @State private var isRecursive = false
+    @State private var recursiveFiles: [FileItem] = []
+    @State private var isLoadingRecursive = false
+    
+    var currentFiles: [FileItem] {
+        isRecursive ? recursiveFiles : files
+    }
     
     var filteredFiles: [FileItem] {
         switch selectedFilter {
         case .all:
-            return files
+            return currentFiles
         case .filesOnly:
-            return files.filter { !$0.isDirectory }
+            return currentFiles.filter { !$0.isDirectory }
         case .foldersOnly:
-            return files.filter { $0.isDirectory }
+            return currentFiles.filter { $0.isDirectory }
         }
     }
     
@@ -104,6 +111,32 @@ struct ReportView: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
+                    
+                    // Recursive Toggle
+                    HStack {
+                        Toggle(isOn: $isRecursive) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "arrow.down.to.line.compact")
+                                    .foregroundColor(isRecursive ? .accentColor : .secondary)
+                                Text(String(localized: "report.recursive.title", defaultValue: "Include all subfolders (recursive)"))
+                                    .font(.subheadline)
+                                if isLoadingRecursive {
+                                    ProgressView()
+                                        .scaleEffect(0.7)
+                                        .controlSize(.small)
+                                }
+                            }
+                        }
+                        .toggleStyle(.switch)
+                        .disabled(isLoadingRecursive)
+                        .onChange(of: isRecursive) { newValue in
+                            if newValue && recursiveFiles.isEmpty {
+                                loadRecursiveData()
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
                     
                     Divider()
                     
@@ -288,6 +321,16 @@ struct ReportView: View {
                     }
                 }
             }
+        }
+    }
+    
+    private func loadRecursiveData() {
+        isLoadingRecursive = true
+        let url = URL(fileURLWithPath: folderPath)
+        
+        scanner.scanDirectoryRecursively(at: url) { items in
+            recursiveFiles = items
+            isLoadingRecursive = false
         }
     }
 }
