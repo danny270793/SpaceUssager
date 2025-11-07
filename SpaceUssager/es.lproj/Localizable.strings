@@ -161,4 +161,8 @@
 "report.insight.topType" = "Tipo Más Común";
 "report.insight.topTypeDesc" = "Los archivos %@ usan %d%% del espacio";
 "report.done" = "Listo";
+"report.filter.title" = "Mostrar";
+"report.filter.all" = "Todo";
+"report.filter.files" = "Solo Archivos";
+"report.filter.folders" = "Solo Carpetas";
 
