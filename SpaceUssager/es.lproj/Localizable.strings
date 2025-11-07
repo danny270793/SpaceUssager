@@ -17,6 +17,10 @@
 "bottom.totalSize" = "Tamaño Total:";
 "bottom.stats" = "(%d archivos, %d carpetas)";
 
+/* Search */
+"search.prompt" = "Buscar archivos y carpetas";
+"search.results" = "%d de %d";
+
 /* Navigation */
 "nav.parent" = "..";
 

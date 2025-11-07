@@ -17,6 +17,10 @@
 "bottom.totalSize" = "Total Size:";
 "bottom.stats" = "(%d files, %d folders)";
 
+/* Search */
+"search.prompt" = "Search files and folders";
+"search.results" = "%d of %d";
+
 /* Navigation */
 "nav.parent" = "..";
 

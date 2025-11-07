@@ -11,7 +11,16 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @StateObject private var scanner = FileScanner()
     @State private var showingFolderPicker = false
+    @State private var searchText = ""
     private let logger = AppLogger.shared
+    
+    var filteredFiles: [FileItem] {
+        if searchText.isEmpty {
+            return scanner.files
+        } else {
+            return scanner.files.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+    }
     
     var canGoBack: Bool {
         guard !scanner.selectedPath.isEmpty else { return false }
@@ -21,11 +30,15 @@ struct ContentView: View {
     }
     
     var fileCount: Int {
-        scanner.files.filter { !$0.isDirectory }.count
+        filteredFiles.filter { !$0.isDirectory }.count
     }
     
     var folderCount: Int {
-        scanner.files.filter { $0.isDirectory }.count
+        filteredFiles.filter { $0.isDirectory }.count
+    }
+    
+    var totalFilteredSize: Int64 {
+        filteredFiles.reduce(0) { $0 + $1.size }
     }
     
     func goToParentDirectory() {
@@ -132,7 +145,7 @@ struct ContentView: View {
                     }
                     
                     // Regular files and folders
-                    ForEach(scanner.files) { file in
+                    ForEach(filteredFiles) { file in
                         HStack(spacing: 8) {
                             Image(systemName: file.isDirectory ? "folder.fill" : "doc.fill")
                                 .foregroundColor(file.isDirectory ? (scanner.isScanning ? .secondary : .accentColor) : Color(nsColor: .secondaryLabelColor))
@@ -206,13 +219,20 @@ struct ContentView: View {
                         .foregroundColor(.secondary)
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(scanner.formatBytes(scanner.totalSize))
+                        Text(scanner.formatBytes(searchText.isEmpty ? scanner.totalSize : totalFilteredSize))
                             .font(.system(.body, design: .monospaced))
                             .fontWeight(.medium)
                         
-                        Text(String(format: String(localized: "bottom.stats", defaultValue: "(%d files, %d folders)"), fileCount, folderCount))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        HStack(spacing: 4) {
+                            Text(String(format: String(localized: "bottom.stats", defaultValue: "(%d files, %d folders)"), fileCount, folderCount))
+                            
+                            if !searchText.isEmpty {
+                                Text("•")
+                                Text("\(filteredFiles.count) of \(scanner.files.count)")
+                            }
+                        }
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                     }
                     
                     Spacer()
@@ -222,6 +242,11 @@ struct ContentView: View {
             }
         }
         .navigationTitle(String(localized: "app.title", defaultValue: "Space Ussager"))
+        .searchable(
+            text: $searchText,
+            placement: .sidebar,
+            prompt: Text(String(localized: "search.prompt", defaultValue: "Search files and folders"))
+        )
         .toolbar {
             ToolbarItem(placement: .automatic) {
                 Button(action: {
