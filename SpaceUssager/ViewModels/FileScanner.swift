@@ -196,7 +196,7 @@ class FileScanner: ObservableObject {
         return formatter.string(fromByteCount: bytes)
     }
     
-    func deleteItem(at path: String) {
+    func deleteItem(at path: String) -> String? {
         logger.info(String(format: String(localized: "log.delete.attempting", defaultValue: "Attempting to delete: %@"), path), category: .general)
         
         let fileManager = FileManager.default
@@ -211,9 +211,12 @@ class FileScanner: ObservableObject {
                 let currentURL = URL(fileURLWithPath: selectedPath)
                 scanDirectory(at: currentURL)
             }
+            return nil // Success, no error message
         } catch {
+            let errorMessage = error.localizedDescription
             logger.error(String(format: String(localized: "log.delete.failed", defaultValue: "Failed to delete: %@"), path), category: .general)
-            logger.error(String(format: String(localized: "log.delete.reason", defaultValue: "Reason: %@"), error.localizedDescription), category: .general)
+            logger.error(String(format: String(localized: "log.delete.reason", defaultValue: "Reason: %@"), errorMessage), category: .general)
+            return errorMessage // Return the error message
         }
     }
 }
