@@ -207,6 +207,16 @@ struct ContentView: View {
                             }
                         }
                         .contextMenu {
+                            Button {
+                                logger.ui(String(format: String(localized: "log.ui.showInFinderClicked", defaultValue: "Show in Finder requested for: %@"), file.name))
+                                let url = URL(fileURLWithPath: file.path)
+                                NSWorkspace.shared.activateFileViewerSelecting([url])
+                            } label: {
+                                Label(String(localized: "contextMenu.showInFinder", defaultValue: "Show in Finder"), systemImage: "folder")
+                            }
+                            
+                            Divider()
+                            
                             Button(role: .destructive) {
                                 logger.ui(String(format: String(localized: "log.ui.deleteClicked", defaultValue: "Delete requested for: %@"), file.name))
                                 itemToDelete = file
