@@ -76,3 +76,48 @@
 "log.picker.noUrl" = "No folder URL returned";
 "log.picker.error" = "Error selecting folder: %@";
 
+/* Help Menu */
+"menu.help.spaceussager" = "SpaceUssager Help";
+"help.window.title" = "Help";
+
+/* Help Content */
+"help.title" = "SpaceUssager Help";
+"help.subtitle" = "Learn how to analyze your disk space";
+
+"help.gettingStarted.title" = "Getting Started";
+"help.gettingStarted.step1.title" = "Select a Folder";
+"help.gettingStarted.step1.description" = "Click the 'Select Folder' button in the toolbar or press ⌘O to choose a folder to analyze.";
+"help.gettingStarted.step2.title" = "Wait for Scan";
+"help.gettingStarted.step2.description" = "The app will scan the folder and calculate sizes. Large folders may take a few moments.";
+"help.gettingStarted.step3.title" = "Explore Results";
+"help.gettingStarted.step3.description" = "Files and folders are sorted by size, with the largest items at the top.";
+
+"help.navigation.title" = "Navigation";
+"help.navigation.enterFolder.title" = "Enter a Folder";
+"help.navigation.enterFolder.description" = "Click on any folder in the list to navigate into it and see its contents.";
+"help.navigation.goBack.title" = "Go Back";
+"help.navigation.goBack.description" = "Click the '..' item at the top of the list to go back to the parent folder.";
+"help.navigation.breadcrumb.title" = "Current Path";
+"help.navigation.breadcrumb.description" = "The current folder path is always displayed at the top of the window.";
+
+"help.features.title" = "Features";
+"help.features.search.title" = "Search";
+"help.features.search.description" = "Use the search bar in the toolbar to filter files and folders by name. Press ⌘F to focus the search.";
+"help.features.sizes.title" = "Size Display";
+"help.features.sizes.description" = "File sizes are shown in human-readable format (KB, MB, GB). Folder sizes include all their contents.";
+"help.features.stats.title" = "Statistics";
+"help.features.stats.description" = "The bottom bar shows total size, file count, and folder count for the current view.";
+"help.features.progressive.title" = "Progressive Loading";
+"help.features.progressive.description" = "Results appear as they're scanned, so you can start exploring immediately.";
+
+"help.shortcuts.title" = "Keyboard Shortcuts";
+"help.shortcuts.open" = "Open folder selector";
+"help.shortcuts.search" = "Focus search field";
+"help.shortcuts.help" = "Show this help window";
+
+"help.tips.title" = "Tips";
+"help.tips.tip1" = "Wait for the scan to complete before navigating to get accurate sizes";
+"help.tips.tip2" = "Use search to quickly find specific files or folders";
+"help.tips.tip3" = "The largest files appear at the top - perfect for finding space hogs";
+"help.tips.tip4" = "Hidden files are not shown in the results";
+
