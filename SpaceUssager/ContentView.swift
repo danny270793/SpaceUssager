@@ -17,6 +17,7 @@ struct ContentView: View {
     @State private var itemToDelete: FileItem?
     @State private var showingDeleteError = false
     @State private var deleteErrorMessage = ""
+    @State private var showingReport = false
     private let logger = AppLogger.shared
     
     var filteredFiles: [FileItem] {
@@ -279,6 +280,18 @@ struct ContentView: View {
         )
         .toolbar {
             ToolbarItem(placement: .automatic) {
+                if !scanner.isScanning && !scanner.files.isEmpty {
+                    Button(action: {
+                        logger.ui(String(localized: "log.ui.reportClicked", defaultValue: "Report button clicked"))
+                        showingReport = true
+                    }) {
+                        Label(String(localized: "button.viewReport", defaultValue: "View Report"), systemImage: "chart.bar.doc.horizontal")
+                    }
+                    .help(String(localized: "button.viewReport", defaultValue: "View Report"))
+                }
+            }
+            
+            ToolbarItem(placement: .automatic) {
                 Button(action: {
                     if !scanner.isScanning {
                         logger.ui(String(localized: "log.ui.selectFolderClicked", defaultValue: "Select Folder button clicked"))
@@ -292,6 +305,14 @@ struct ContentView: View {
                 .disabled(scanner.isScanning)
                 .help(String(localized: "button.selectFolder", defaultValue: "Select Folder"))
             }
+        }
+        .sheet(isPresented: $showingReport) {
+            ReportView(
+                files: scanner.files,
+                totalSize: scanner.totalSize,
+                folderPath: scanner.selectedPath,
+                scanner: scanner
+            )
         }
         }
         .frame(minWidth: 700, idealWidth: 900, minHeight: 500, idealHeight: 700)
