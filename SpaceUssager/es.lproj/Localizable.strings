@@ -4,6 +4,7 @@
 /* Buttons */
 "button.selectFolder" = "Seleccionar Carpeta";
 "button.parentFolder" = "Carpeta Superior";
+"button.viewReport" = "Ver Informe";
 
 /* Welcome Screen */
 "welcome.title" = "Bienvenido a Space Ussager";
@@ -82,6 +83,7 @@
 "log.ui.scrolling" = "Desplazando al inicio para: %@";
 "log.ui.showInFinderClicked" = "Mostrar en Finder solicitado para: %@";
 "log.ui.deleteClicked" = "Mover a la Papelera solicitado para: %@";
+"log.ui.reportClicked" = "Botón de informe presionado";
 
 "log.picker.callback" = "Callback del selector de archivos activado";
 "log.picker.selected" = "Carpeta seleccionada: %@";
@@ -141,4 +143,22 @@
 "help.tips.tip2" = "Usa la búsqueda para encontrar rápidamente archivos o carpetas específicos";
 "help.tips.tip3" = "Los archivos más grandes aparecen en la parte superior - perfecto para encontrar archivos grandes";
 "help.tips.tip4" = "Los archivos ocultos no se muestran en los resultados";
+
+/* Report View */
+"report.title" = "Informe de Almacenamiento";
+"report.summary" = "Resumen";
+"report.totalSize" = "Tamaño Total";
+"report.files" = "Archivos";
+"report.folders" = "Carpetas";
+"report.typeDistribution" = "Almacenamiento por Tipo";
+"report.largestItems" = "Elementos Más Grandes";
+"report.legend.files" = "Archivos";
+"report.legend.folders" = "Carpetas";
+"report.insights" = "Análisis";
+"report.insight.largest" = "Elemento Más Grande";
+"report.insight.largestDesc" = "\"%@\" usa %@";
+"report.insight.average" = "Tamaño Promedio de Archivo";
+"report.insight.topType" = "Tipo Más Común";
+"report.insight.topTypeDesc" = "Los archivos %@ usan %d%% del espacio";
+"report.done" = "Listo";
 
