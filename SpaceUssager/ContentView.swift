@@ -202,6 +202,14 @@ struct ContentView: View {
                                 logger.ui(String(format: String(localized: "log.ui.fileClicked", defaultValue: "File clicked (no action): %@"), file.name))
                             }
                         }
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                logger.ui(String(format: String(localized: "log.ui.deleteClicked", defaultValue: "Delete requested for: %@"), file.name))
+                                scanner.deleteItem(at: file.path)
+                            } label: {
+                                Label(String(localized: "contextMenu.delete", defaultValue: "Delete"), systemImage: "trash")
+                            }
+                        }
                     }
                     }
                     .listStyle(.plain)
