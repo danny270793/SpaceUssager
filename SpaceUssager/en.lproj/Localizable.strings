@@ -39,16 +39,16 @@
 
 /* Context Menu */
 "contextMenu.showInFinder" = "Show in Finder";
-"contextMenu.delete" = "Delete";
+"contextMenu.delete" = "Move to Trash";
 
 /* Delete Confirmation */
-"delete.confirmation.title" = "Delete Item";
-"delete.confirmation.message" = "Are you sure you want to permanently delete \"%@\"? This action cannot be undone.";
-"delete.confirmation.button" = "Delete \"%@\"";
+"delete.confirmation.title" = "Move to Trash";
+"delete.confirmation.message" = "Are you sure you want to move \"%@\" to the Trash?";
+"delete.confirmation.button" = "Move \"%@\" to Trash";
 "delete.confirmation.cancel" = "Cancel";
 
 /* Delete Error */
-"delete.error.title" = "Delete Failed";
+"delete.error.title" = "Failed to Move to Trash";
 "delete.error.ok" = "OK";
 
 /* Logs */
@@ -81,7 +81,7 @@
 "log.ui.fileClicked" = "File clicked (no action): %@";
 "log.ui.scrolling" = "Scrolling to top for: %@";
 "log.ui.showInFinderClicked" = "Show in Finder requested for: %@";
-"log.ui.deleteClicked" = "Delete requested for: %@";
+"log.ui.deleteClicked" = "Move to Trash requested for: %@";
 
 "log.picker.callback" = "File picker callback triggered";
 "log.picker.selected" = "Folder selected: %@";
@@ -92,9 +92,9 @@
 "log.picker.noUrl" = "No folder URL returned";
 "log.picker.error" = "Error selecting folder: %@";
 
-"log.delete.attempting" = "Attempting to delete: %@";
-"log.delete.success" = "Successfully deleted: %@";
-"log.delete.failed" = "Failed to delete: %@";
+"log.delete.attempting" = "Attempting to move to trash: %@";
+"log.delete.success" = "Successfully moved to trash: %@";
+"log.delete.failed" = "Failed to move to trash: %@";
 "log.delete.reason" = "Reason: %@";
 
 /* Help Menu */
