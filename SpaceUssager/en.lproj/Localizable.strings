@@ -161,4 +161,8 @@
 "report.insight.topType" = "Most Common Type";
 "report.insight.topTypeDesc" = "%@ files use %d%% of space";
 "report.done" = "Done";
+"report.filter.title" = "Show";
+"report.filter.all" = "All";
+"report.filter.files" = "Files Only";
+"report.filter.folders" = "Folders Only";
 
