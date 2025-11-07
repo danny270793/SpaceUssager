@@ -4,6 +4,7 @@
 /* Buttons */
 "button.selectFolder" = "Select Folder";
 "button.parentFolder" = "Parent Folder";
+"button.viewReport" = "View Report";
 
 /* Welcome Screen */
 "welcome.title" = "Welcome to Space Ussager";
@@ -82,6 +83,7 @@
 "log.ui.scrolling" = "Scrolling to top for: %@";
 "log.ui.showInFinderClicked" = "Show in Finder requested for: %@";
 "log.ui.deleteClicked" = "Move to Trash requested for: %@";
+"log.ui.reportClicked" = "Report button clicked";
 
 "log.picker.callback" = "File picker callback triggered";
 "log.picker.selected" = "Folder selected: %@";
@@ -141,4 +143,22 @@
 "help.tips.tip2" = "Use search to quickly find specific files or folders";
 "help.tips.tip3" = "The largest files appear at the top - perfect for finding space hogs";
 "help.tips.tip4" = "Hidden files are not shown in the results";
+
+/* Report View */
+"report.title" = "Storage Report";
+"report.summary" = "Summary";
+"report.totalSize" = "Total Size";
+"report.files" = "Files";
+"report.folders" = "Folders";
+"report.typeDistribution" = "Storage by Type";
+"report.largestItems" = "Largest Items";
+"report.legend.files" = "Files";
+"report.legend.folders" = "Folders";
+"report.insights" = "Insights";
+"report.insight.largest" = "Largest Item";
+"report.insight.largestDesc" = "\"%@\" uses %@";
+"report.insight.average" = "Average File Size";
+"report.insight.topType" = "Most Common Type";
+"report.insight.topTypeDesc" = "%@ files use %d%% of space";
+"report.done" = "Done";
 
