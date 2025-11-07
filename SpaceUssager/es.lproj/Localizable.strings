@@ -76,3 +76,48 @@
 "log.picker.noUrl" = "No se devolvió URL de carpeta";
 "log.picker.error" = "Error al seleccionar carpeta: %@";
 
+/* Help Menu */
+"menu.help.spaceussager" = "Ayuda de SpaceUssager";
+"help.window.title" = "Ayuda";
+
+/* Help Content */
+"help.title" = "Ayuda de SpaceUssager";
+"help.subtitle" = "Aprende a analizar el espacio en tu disco";
+
+"help.gettingStarted.title" = "Comenzando";
+"help.gettingStarted.step1.title" = "Seleccionar una Carpeta";
+"help.gettingStarted.step1.description" = "Haz clic en el botón 'Seleccionar Carpeta' en la barra de herramientas o presiona ⌘O para elegir una carpeta para analizar.";
+"help.gettingStarted.step2.title" = "Esperar el Escaneo";
+"help.gettingStarted.step2.description" = "La aplicación escaneará la carpeta y calculará los tamaños. Las carpetas grandes pueden tomar unos momentos.";
+"help.gettingStarted.step3.title" = "Explorar Resultados";
+"help.gettingStarted.step3.description" = "Los archivos y carpetas están ordenados por tamaño, con los elementos más grandes en la parte superior.";
+
+"help.navigation.title" = "Navegación";
+"help.navigation.enterFolder.title" = "Entrar en una Carpeta";
+"help.navigation.enterFolder.description" = "Haz clic en cualquier carpeta de la lista para navegar hacia ella y ver su contenido.";
+"help.navigation.goBack.title" = "Volver Atrás";
+"help.navigation.goBack.description" = "Haz clic en el elemento '..' en la parte superior de la lista para volver a la carpeta superior.";
+"help.navigation.breadcrumb.title" = "Ruta Actual";
+"help.navigation.breadcrumb.description" = "La ruta de la carpeta actual siempre se muestra en la parte superior de la ventana.";
+
+"help.features.title" = "Características";
+"help.features.search.title" = "Búsqueda";
+"help.features.search.description" = "Usa la barra de búsqueda en la barra de herramientas para filtrar archivos y carpetas por nombre. Presiona ⌘F para enfocar la búsqueda.";
+"help.features.sizes.title" = "Visualización de Tamaños";
+"help.features.sizes.description" = "Los tamaños de archivo se muestran en formato legible (KB, MB, GB). Los tamaños de carpeta incluyen todo su contenido.";
+"help.features.stats.title" = "Estadísticas";
+"help.features.stats.description" = "La barra inferior muestra el tamaño total, conteo de archivos y conteo de carpetas para la vista actual.";
+"help.features.progressive.title" = "Carga Progresiva";
+"help.features.progressive.description" = "Los resultados aparecen mientras se escanean, para que puedas comenzar a explorar inmediatamente.";
+
+"help.shortcuts.title" = "Atajos de Teclado";
+"help.shortcuts.open" = "Abrir selector de carpetas";
+"help.shortcuts.search" = "Enfocar campo de búsqueda";
+"help.shortcuts.help" = "Mostrar esta ventana de ayuda";
+
+"help.tips.title" = "Consejos";
+"help.tips.tip1" = "Espera a que se complete el escaneo antes de navegar para obtener tamaños precisos";
+"help.tips.tip2" = "Usa la búsqueda para encontrar rápidamente archivos o carpetas específicos";
+"help.tips.tip3" = "Los archivos más grandes aparecen en la parte superior - perfecto para encontrar archivos grandes";
+"help.tips.tip4" = "Los archivos ocultos no se muestran en los resultados";
+
