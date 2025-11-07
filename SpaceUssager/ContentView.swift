@@ -13,6 +13,10 @@ struct ContentView: View {
     @State private var showingFolderPicker = false
     @State private var searchText = ""
     @AppStorage("hasSeenWelcome") private var hasSeenWelcome = false
+    @State private var showingDeleteConfirmation = false
+    @State private var itemToDelete: FileItem?
+    @State private var showingDeleteError = false
+    @State private var deleteErrorMessage = ""
     private let logger = AppLogger.shared
     
     var filteredFiles: [FileItem] {
@@ -205,7 +209,8 @@ struct ContentView: View {
                         .contextMenu {
                             Button(role: .destructive) {
                                 logger.ui(String(format: String(localized: "log.ui.deleteClicked", defaultValue: "Delete requested for: %@"), file.name))
-                                scanner.deleteItem(at: file.path)
+                                itemToDelete = file
+                                showingDeleteConfirmation = true
                             } label: {
                                 Label(String(localized: "contextMenu.delete", defaultValue: "Delete"), systemImage: "trash")
                             }
@@ -312,6 +317,31 @@ struct ContentView: View {
             case .failure(let error):
                 logger.error(String(format: String(localized: "log.picker.error", defaultValue: "Error selecting folder: %@"), error.localizedDescription), category: .picker)
             }
+        }
+        .confirmationDialog(
+            String(localized: "delete.confirmation.title", defaultValue: "Delete Item"),
+            isPresented: $showingDeleteConfirmation,
+            presenting: itemToDelete
+        ) { item in
+            Button(role: .destructive) {
+                if let result = scanner.deleteItem(at: item.path) {
+                    deleteErrorMessage = result
+                    showingDeleteError = true
+                }
+            } label: {
+                Text(String(format: String(localized: "delete.confirmation.button", defaultValue: "Delete \"%@\""), item.name))
+            }
+            Button(String(localized: "delete.confirmation.cancel", defaultValue: "Cancel"), role: .cancel) { }
+        } message: { item in
+            Text(String(format: String(localized: "delete.confirmation.message", defaultValue: "Are you sure you want to permanently delete \"%@\"? This action cannot be undone."), item.name))
+        }
+        .alert(
+            String(localized: "delete.error.title", defaultValue: "Delete Failed"),
+            isPresented: $showingDeleteError
+        ) {
+            Button(String(localized: "delete.error.ok", defaultValue: "OK"), role: .cancel) { }
+        } message: {
+            Text(deleteErrorMessage)
         }
     }
 }
